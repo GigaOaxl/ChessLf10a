@@ -11,13 +11,10 @@ void bildschirm_leeren(void)
     printf("\033[H\033[2J\033[3J"); /* Cursor oben, Bildschirm und Scrollback leeren */
 }
 
-/* 1, wenn die Figur dem Spieler gehoert, der gerade am Zug ist (Gross = Weiss). */
-static int ist_am_zug(char figur)
+/* 1, wenn auf dem Feld eine Figur des Spielers steht, der gerade am Zug ist. */
+static int ist_am_zug(Feld feld)
 {
-    if (figur == '.') {
-        return 0;
-    }
-    return isupper((unsigned char)figur) == (aktuellerSpieler == 'W');
+    return feld.farbe == aktuellerSpieler;
 }
 
 /* Beschriftung rechts neben dem Brett; der Spieler am Zug bekommt einen Pfeil. */
@@ -34,15 +31,16 @@ static const char *seitenbeschriftung(int zeile)
     return "";
 }
 
-void spielfeld_ausgeben(char spielfeld[8][8])
+void spielfeld_ausgeben(Feld spielfeld[8][8])
 {
     printf("    a b c d e f g h\n");
     printf("  +-----------------+\n");
     for (int zeile = 0; zeile < 8; zeile++) {
         printf("%d |", 8 - zeile);
         for (int spalte = 0; spalte < 8; spalte++) {
-            char figur = spielfeld[zeile][spalte];
-            if (ist_am_zug(figur)) {
+            Feld feld = spielfeld[zeile][spalte];
+            char figur = feld_zeichen(feld);
+            if (ist_am_zug(feld)) {
                 printf(" \033[1m%c\033[0m", figur);   /* fett: diese Figuren darf man ziehen */
             } else {
                 printf(" %c", figur);
@@ -84,7 +82,7 @@ void menue_anzeigen(void)
     printf("3 - Spielstand speichern  0 - Beenden\n\n");
 }
 
-void seite_anzeigen(char spielfeld[8][8], const char *meldung)
+void seite_anzeigen(Feld spielfeld[8][8], const char *meldung)
 {
     bildschirm_leeren();
     spielfeld_ausgeben(spielfeld);
@@ -111,26 +109,26 @@ int feld_einlesen(const char *frage, char feld[], int *zeile, int *spalte)
 }
 
 /* Erklaert, warum eine Figur nicht so ziehen darf (Meldung E7). Brett ist noch unveraendert. */
-static const char *regel_text(char spielfeld[8][8], int sz, int ss, int zz, int zs)
+static const char *regel_text(Feld spielfeld[8][8], int sz, int ss, int zz, int zs)
 {
     int dz = abs(zz - sz);
     int ds = abs(zs - ss);
 
-    switch (tolower((unsigned char)spielfeld[sz][ss])) {
-    case 't':
+    switch (spielfeld[sz][ss].figur) {
+    case 'T':
         return (dz > 0 && ds > 0) ? "Ein Turm kann sich nicht diagonal bewegen."
                                   : "Der Weg des Turms ist durch eine Figur blockiert.";
-    case 'l':
+    case 'L':
         return (dz != ds) ? "Ein Läufer kann sich nur diagonal bewegen."
                           : "Der Weg des Läufers ist durch eine Figur blockiert.";
-    case 's': return "Ein Springer zieht nur in L-Form (2 Felder und 1 Feld seitlich).";
-    case 'd': return "Eine Dame zieht nur gerade oder diagonal über freie Felder.";
-    case 'k': return "Ein König zieht nur ein Feld weit.";
+    case 'S': return "Ein Springer zieht nur in L-Form (2 Felder und 1 Feld seitlich).";
+    case 'D': return "Eine Dame zieht nur gerade oder diagonal über freie Felder.";
+    case 'K': return "Ein König zieht nur ein Feld weit.";
     default:  return "Ein Bauer zieht 1 Feld vor (2 aus der Grundreihe) und schlägt nur diagonal.";
     }
 }
 
-void zugfehler_text(int code, char spielfeld[8][8], int sz, int ss, int zz, int zs,
+void zugfehler_text(int code, Feld spielfeld[8][8], int sz, int ss, int zz, int zs,
                     const char *startfeld, char meldung[], int groesse)
 {
     if (code == ZUG_STARTFELD_LEER) {

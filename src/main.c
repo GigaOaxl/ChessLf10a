@@ -8,7 +8,7 @@
 
 int main(void)
 {
-    char spielfeld[8][8];
+    Feld spielfeld[8][8];
     char meldung[100] = "Willkommen! Weiß beginnt.";
     char eingabe[16];
     int auswahl = -1;

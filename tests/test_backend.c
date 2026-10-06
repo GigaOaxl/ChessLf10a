@@ -16,7 +16,7 @@ static void pruefe(const char *name, int bedingung)
 }
 
 /* Zug in Schachnotation ausfuehren, z.B. zug(f, "e2", "e4"). Rueckgabe: Code von figur_bewegen. */
-static int zug(char f[8][8], const char *von, const char *nach)
+static int zug(Feld f[8][8], const char *von, const char *nach)
 {
     char a[3], b[3];
     int sz, ss, zz, zs;
@@ -28,26 +28,27 @@ static int zug(char f[8][8], const char *von, const char *nach)
     return figur_bewegen(f, sz, ss, zz, zs);
 }
 
-static char feld_an(char f[8][8], const char *name)
+static char feld_an(Feld f[8][8], const char *name)
 {
     char n[3];
     int z, s;
     strcpy(n, name);
     feld_ermitteln(n, &z, &s);
-    return f[z][s];
+    return feld_zeichen(f[z][s]);
 }
 
 int main(void)
 {
-    char f[8][8];
+    Feld f[8][8];
     int z, s;
     char eingabe[8];
 
     /* Testfall 1: Startaufstellung */
     spielfeld_initialisieren(f);
-    pruefe("Start: a8 ist schwarzer Turm", f[0][0] == 't');
-    pruefe("Start: h1 ist weisser Turm", f[7][7] == 'T');
+    pruefe("Start: a8 ist schwarzer Turm", feld_an(f, "a8") == 't');
+    pruefe("Start: h1 ist weisser Turm", feld_an(f, "h1") == 'T');
     pruefe("Start: e1 ist weisser Koenig", feld_an(f, "e1") == 'K');
+    pruefe("Feld trennt Figur und Farbe", f[7][4].figur == 'K' && f[7][4].farbe == 'W' && f[0][4].farbe == 'S');
     pruefe("Start: Weiss beginnt", aktuellerSpieler == 'W' && zugnummer == 1);
 
     /* feld_ermitteln (S2, Testfall 4) */

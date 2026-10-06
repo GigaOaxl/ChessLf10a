@@ -20,7 +20,7 @@ make schach_stub   # Frontend mit Attrappe, nur zum Testen der Anzeige
 | `src/backend.c` | Spiellogik: Zugregeln, Spielerwechsel, Protokoll, Speichern/Laden |
 | `src/stub.c` | Attrappe der Spiellogik (nur Test) |
 | `tests/test_backend.c` | 45 automatische Tests |
-| `docs/` | PRD, Schnittstelle, Frontend-Doku, Aufgabenstellung |
+| `docs/` | PRD, Schnittstelle, Frontend-Doku, Abgabe, Reflexion, Aufgabenstellung |
 
 Details: `docs/FRONTEND.md`, `docs/SCHNITTSTELLE.md`.
 
@@ -31,7 +31,7 @@ Legende: ✅ fertig und getestet | ⚠️ teilweise | ❌ offen
 ### BASIS (50 Punkte)
 | Nr | Aufgabe | Status | Wo |
 |---|---|---|---|
-| B1 | Array `char spielfeld[8][8]` | ✅ | `main.c` |
+| B1 | Array `spielfeld[8][8]` (als `Feld`, siehe Optional unten) | ✅ | `main.c` |
 | B2 | `spielfeld_initialisieren` (Ausgangsstellung) | ✅ | `backend.c` |
 | B3 | `spielfeld_ausgeben` | ✅ | `ui.c` |
 | B4 | `figur_bewegen` | ✅ | `backend.c` |
@@ -66,14 +66,14 @@ Legende: ✅ fertig und getestet | ⚠️ teilweise | ❌ offen
 ### Weitere Punkte der Aufgabenstellung
 | Punkt | Status |
 |---|---|
-| Optional: `struct Feld` (Figur + Farbe getrennt) | ❌ nicht umgesetzt |
+| Optional: `struct Feld` (Figur + Farbe getrennt) | ✅ `Feld spielfeld[8][8]`, siehe `backend.h` |
 | 10 Testfaelle | ✅ Faelle 1-5 und 7-10 als automatische Tests (`make test`), Fall 6 (Beenden) nur manuell im Menue |
 | Abgabe: Screenshot des Spielfelds | ✅ Textausgabe in `docs/ABGABE.md` |
 | Abgabe: kurze Beschreibung der Loesung | ✅ `docs/ABGABE.md` |
 | Abgabe: Dokumentation der Funktionen | ✅ `docs/ABGABE.md` (Backend und Frontend) |
 | Abgabe: Beschreibung der implementierten Schachregeln | ✅ Abschnitt "Schachregeln im Spiel" |
 | Abgabe: gespeicherter Spielstand als Beispiel | ✅ `docs/beispiel_spielstand.txt` |
-| Reflexionsaufgabe (7 Fragen) | ❌ offen |
+| Reflexionsaufgabe (7 Fragen) | ✅ Entwurf in `docs/REFLEXION.md` (vor Abgabe in eigenen Worten prüfen) |
 
 ## Schachregeln im Spiel
 - Weiss (Grossbuchstaben) beginnt, danach wechseln die Spieler.
@@ -107,6 +107,6 @@ Das Beispielbrett im Aufgabenblatt zeigt `T L S D K S L T` (Laeufer auf b, Sprin
 Das ist falsch. Wir verwenden die echte Aufstellung `T S L D K L S T`.
 
 ## Bekannte Grenzen
-- Das Spielfeld ist ein `char`-Array, Figur und Farbe sind im Buchstaben kodiert (Gross = Weiss).
+- Das Spielfeld ist ein `Feld`-Array (Figur und Farbe getrennt). In Dateien steht weiter ein Zeichen pro Feld (Gross = Weiss, klein = Schwarz).
 - Das Protokoll fasst 500 Zuege; danach werden Zuege noch ausgefuehrt, aber nicht mehr protokolliert.
 - Der Bildschirm wird mit ANSI-Escape-Codes geleert (Linux-Terminal, moderne Windows-Terminals).

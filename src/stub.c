@@ -11,29 +11,30 @@ int zugnummer = 1;
 char zugprotokoll[PROTOKOLL_MAX][16];
 int zugprotokollAnzahl = 0;
 
-void spielfeld_initialisieren(char spielfeld[8][8])
+void spielfeld_initialisieren(Feld spielfeld[8][8])
 {
     const char *start[8] = {
         "tsldklst", "bbbbbbbb", "........", "........",
         "........", "........", "BBBBBBBB", "TSLDKLST"
     };
     for (int zeile = 0; zeile < 8; zeile++) {
-        memcpy(spielfeld[zeile], start[zeile], 8);
+        for (int spalte = 0; spalte < 8; spalte++) {
+            spielfeld[zeile][spalte] = feld_aus_zeichen(start[zeile][spalte]);
+        }
     }
     aktuellerSpieler = 'W';
     zugnummer = 1;
     zugprotokollAnzahl = 0;
 }
 
-int figur_bewegen(char spielfeld[8][8],
+int figur_bewegen(Feld spielfeld[8][8],
                   int startZeile, int startSpalte,
                   int zielZeile, int zielSpalte)
 {
-    if (spielfeld[startZeile][startSpalte] == '.') {
+    if (spielfeld[startZeile][startSpalte].figur == '.') {
         return ZUG_STARTFELD_LEER;
     }
-    int figurIstWeiss = spielfeld[startZeile][startSpalte] >= 'A' && spielfeld[startZeile][startSpalte] <= 'Z';
-    if (figurIstWeiss != (aktuellerSpieler == 'W')) {
+    if (spielfeld[startZeile][startSpalte].farbe != aktuellerSpieler) {
         return ZUG_FALSCHE_FARBE;
     }
     snprintf(zugprotokoll[zugprotokollAnzahl++], 16, "%d. %c%c -> %c%c", zugnummer % 1000,
@@ -41,7 +42,7 @@ int figur_bewegen(char spielfeld[8][8],
     zugnummer++;
     aktuellerSpieler = (aktuellerSpieler == 'W') ? 'S' : 'W';
     spielfeld[zielZeile][zielSpalte] = spielfeld[startZeile][startSpalte];
-    spielfeld[startZeile][startSpalte] = '.';
+    spielfeld[startZeile][startSpalte] = feld_aus_zeichen('.');
     return ZUG_OK;
 }
 
@@ -55,20 +56,23 @@ int feld_ermitteln(char feld[], int *zeile, int *spalte)
     return 1;
 }
 
-int spielstand_speichern(char spielfeld[8][8], const char *dateiname)
+int spielstand_speichern(Feld spielfeld[8][8], const char *dateiname)
 {
     FILE *datei = fopen(dateiname, "w");
     if (datei == NULL) {
         return 0;
     }
     for (int zeile = 0; zeile < 8; zeile++) {
-        fprintf(datei, "%.8s\n", spielfeld[zeile]);
+        for (int spalte = 0; spalte < 8; spalte++) {
+            fputc(feld_zeichen(spielfeld[zeile][spalte]), datei);
+        }
+        fputc('\n', datei);
     }
     fclose(datei);
     return 1;
 }
 
-int spielstand_laden(char spielfeld[8][8], const char *dateiname)
+int spielstand_laden(Feld spielfeld[8][8], const char *dateiname)
 {
     char zeilentext[16];
     FILE *datei = fopen(dateiname, "r");
@@ -80,7 +84,9 @@ int spielstand_laden(char spielfeld[8][8], const char *dateiname)
             fclose(datei);
             return 0;
         }
-        memcpy(spielfeld[zeile], zeilentext, 8);
+        for (int spalte = 0; spalte < 8; spalte++) {
+            spielfeld[zeile][spalte] = feld_aus_zeichen(zeilentext[spalte]);
+        }
     }
     fclose(datei);
     return 1;

@@ -1,5 +1,8 @@
 # Schnittstelle Frontend <-> Spiellogik
 
+Das Brett ist `Feld spielfeld[8][8]` mit `Feld { char figur; char farbe; }` (siehe `backend.h`).
+Fuer Anzeige und Datei wandeln `feld_zeichen` / `feld_aus_zeichen` zwischen Feld und Zeichen um.
+
 Der Vertrag steht in `src/backend.h`. Das Frontend ruft nur diese Funktionen auf.
 
 | Funktion | Zweck | Rueckgabe |
