@@ -30,12 +30,15 @@ Zug erfolgreich.
 |---|---|
 | `spielfeld_initialisieren` | Ausgangsstellung, setzt Spieler, Zugnummer und Protokoll zurück |
 | `feld_ermitteln` | `"e2"` in Zeile/Spalte umwandeln, prüft die Eingabe (1 gültig, 0 ungültig) |
+| `feld_name_bilden` | Umkehrung: Zeile/Spalte in `"e2"` umwandeln (für Protokoll und Fehlermeldungen) |
 | `startfeld_pruefen` | Prüft nur das Startfeld (leer / fremde Figur), Grundlage des Early Exits |
 | `figur_bewegen` | Prüft und führt einen Zug aus. Gibt `ZUG_OK` oder einen Fehlercode zurück |
 | `spielstand_speichern` | Schreibt Zugnummer, Spieler, Brett und Protokoll in eine Textdatei |
 | `spielstand_laden` | Liest und prüft die Datei, bei Fehler bleibt der Spielstand unverändert |
 
-### Frontend (`ui.h`)
+### Frontend (`ui.c`)
+Öffentlich (`ui.h`) sind `seite_anzeigen`, `text_einlesen`, `feld_einlesen` und `zugfehler_text`. Die übrigen Funktionen sind `static` und werden nur von `seite_anzeigen` benutzt.
+
 | Funktion | Aufgabe |
 |---|---|
 | `bildschirm_leeren` | Konsole und Scrollback leeren |
@@ -55,4 +58,4 @@ Beispiel: `docs/beispiel_spielstand.txt` (Zugnummer, Spieler, 8 Brettzeilen, Anz
 Format-Erklärung im `README.md`.
 
 ## Testfälle
-`make test` führt 45 automatische Tests der Spiellogik aus (gültige und ungültige Züge, Schlagen, Speichern/Laden).
+`make test` führt 51 automatische Tests der Spiellogik aus (gültige und ungültige Züge, Schlagen, Speichern/Laden).

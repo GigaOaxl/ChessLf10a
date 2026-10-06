@@ -5,8 +5,8 @@ Ein Schachbrett hat Zeilen und Spalten. Ein zweidimensionales Array hat auch Zei
 Spalten. Das passt direkt zusammen: Das Feld e2 ist `spielfeld[6][4]`.
 
 Dadurch kann man mit Zahlen rechnen. Ein Turm bleibt in derselben Zeile oder Spalte. Ein
-Läufer geht in Zeile und Spalte gleich viele Schritte (`abs(zz - sz) == abs(zs - ss)` in
-`laeufer_darf`). Außerdem können wir das Brett mit zwei Schleifen ausgeben, speichern und
+Läufer geht in Zeile und Spalte gleich viele Schritte (`abs(zielZeile - startZeile) == abs(zielSpalte - startSpalte)` in
+`laeufer_darf_ziehen`). Außerdem können wir das Brett mit zwei Schleifen ausgeben, speichern und
 laden (`spielfeld_ausgeben`, `spielstand_speichern`, `spielstand_laden`).
 
 ## 2. Welche Vorteile ergeben sich durch die Verwendung von Funktionen?
@@ -21,9 +21,9 @@ laden (`spielfeld_ausgeben`, `spielstand_speichern`, `spielstand_laden`).
 - Der Code ist leichter zu lesen, weil die Namen sagen, was passiert.
 
 ## 3. Welche Probleme entstehen bei der Umwandlung von a1 in Array-Indizes?
-- Der Buchstabe wird zur Spalte: a = 0, b = 1, ... h = 7. Das geht mit `feld[0] - 'a'`.
+- Der Buchstabe wird zur Spalte: a = 0, b = 1, ... h = 7. Das geht mit `feldname[0] - 'a'`.
 - Die Zahl wird zur Zeile, aber **andersherum**. Auf dem Brett ist die 8 oben. Im Array
-  ist Zeile 0 oben. Darum rechnen wir `zeile = 8 - (feld[1] - '0')`. Also ist a1 =
+  ist Zeile 0 oben. Darum rechnen wir `zeile = 8 - (feldname[1] - '0')`. Also ist a1 =
   `[7][0]` und a8 = `[0][0]`.
 - Das Array fängt bei 0 an, das Brett bei 1. Da passieren schnell Fehler um eins.
 - Die Eingabe kann falsch sein, zum Beispiel `z9`, `a9`, `x` oder `abc`. Deshalb prüft

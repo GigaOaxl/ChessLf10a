@@ -148,6 +148,11 @@ void zugfehler_text(int code, Feld spielfeld[8][8], int startZeile, int startSpa
                  aktuellerSpieler == FARBE_WEISS ? "Weiß" : "Schwarz");
     } else if (startZeile == zielZeile && startSpalte == zielSpalte) {
         snprintf(meldung, groesse, "FEHLER: Start- und Zielfeld sind gleich.");
+    } else if (spielfeld[zielZeile][zielSpalte].figur != FELD_LEER &&
+               spielfeld[zielZeile][zielSpalte].farbe == aktuellerSpieler) {
+        char zielfeld[3];
+        feld_name_bilden(zielZeile, zielSpalte, zielfeld);
+        snprintf(meldung, groesse, "FEHLER: Auf %s steht bereits eine eigene Figur.", zielfeld);
     } else {
         snprintf(meldung, groesse, "FEHLER: %s", regel_text(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte));
     }

@@ -17,7 +17,7 @@ make test     # automatische Tests der Spiellogik
 | `src/ui.c`, `src/ui.h` | Anzeige, Eingabe, Fehlertexte (Frontend) |
 | `src/backend.h` | Vertrag zwischen Frontend und Spiellogik |
 | `src/backend.c` | Spiellogik: Zugregeln, Spielerwechsel, Protokoll, Speichern/Laden |
-| `tests/test_backend.c` | 45 automatische Tests |
+| `tests/test_backend.c` | 51 automatische Tests |
 | `docs/` | PRD, Schnittstelle, Frontend-Doku, Aufgabenstellung |
 
 Details: `docs/FRONTEND.md`, `docs/SCHNITTSTELLE.md`.
