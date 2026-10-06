@@ -6,6 +6,11 @@
 #include <string.h>
 #include "backend.h"
 
+char aktuellerSpieler = 'W';
+int zugnummer = 1;
+char zugprotokoll[PROTOKOLL_MAX][16];
+int zugprotokollAnzahl = 0;
+
 void spielfeld_initialisieren(char spielfeld[8][8])
 {
     const char *start[8] = {
@@ -15,6 +20,9 @@ void spielfeld_initialisieren(char spielfeld[8][8])
     for (int zeile = 0; zeile < 8; zeile++) {
         memcpy(spielfeld[zeile], start[zeile], 8);
     }
+    aktuellerSpieler = 'W';
+    zugnummer = 1;
+    zugprotokollAnzahl = 0;
 }
 
 int figur_bewegen(char spielfeld[8][8],
@@ -24,6 +32,14 @@ int figur_bewegen(char spielfeld[8][8],
     if (spielfeld[startZeile][startSpalte] == '.') {
         return ZUG_STARTFELD_LEER;
     }
+    int figurIstWeiss = spielfeld[startZeile][startSpalte] >= 'A' && spielfeld[startZeile][startSpalte] <= 'Z';
+    if (figurIstWeiss != (aktuellerSpieler == 'W')) {
+        return ZUG_FALSCHE_FARBE;
+    }
+    snprintf(zugprotokoll[zugprotokollAnzahl++], 16, "%d. %c%c -> %c%c", zugnummer % 1000,
+             'a' + startSpalte, '8' - startZeile, 'a' + zielSpalte, '8' - zielZeile);
+    zugnummer++;
+    aktuellerSpieler = (aktuellerSpieler == 'W') ? 'S' : 'W';
     spielfeld[zielZeile][zielSpalte] = spielfeld[startZeile][startSpalte];
     spielfeld[startZeile][startSpalte] = '.';
     return ZUG_OK;

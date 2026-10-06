@@ -23,6 +23,26 @@ void spielfeld_ausgeben(char spielfeld[8][8])
     printf("  +-----------------+\n");
 }
 
+#define PROTOKOLL_ANZEIGE 5 /* so viele letzte Zuege werden gezeigt */
+
+void status_ausgeben(void)
+{
+    printf("\nZugnummer: %d\n", zugnummer);
+    printf("Spieler: %s\n", aktuellerSpieler == 'W' ? "Weiß" : "Schwarz");
+}
+
+void protokoll_ausgeben(void)
+{
+    int erster = zugprotokollAnzahl - PROTOKOLL_ANZEIGE;
+    if (erster < 0) {
+        erster = 0;
+    }
+    printf("\nZugprotokoll:\n");
+    for (int i = erster; i < zugprotokollAnzahl; i++) {
+        printf("%s\n", zugprotokoll[i]);
+    }
+}
+
 void menue_anzeigen(void)
 {
     printf("\n========================\n");
@@ -40,6 +60,8 @@ void seite_anzeigen(char spielfeld[8][8], const char *meldung)
 {
     bildschirm_leeren();
     spielfeld_ausgeben(spielfeld);
+    status_ausgeben();
+    protokoll_ausgeben();
     printf("\n%s\n", meldung);
     menue_anzeigen();
 }
@@ -65,7 +87,8 @@ void zugfehler_text(int code, const char *startfeld, char meldung[], int groesse
     if (code == ZUG_STARTFELD_LEER) {
         snprintf(meldung, groesse, "FEHLER: Auf %s befindet sich keine Figur.", startfeld);
     } else if (code == ZUG_FALSCHE_FARBE) {
-        snprintf(meldung, groesse, "FEHLER: Diese Figur gehört nicht zum Spieler am Zug.");
+        snprintf(meldung, groesse, "FEHLER: Diese Figur gehört nicht zu %s.",
+                 aktuellerSpieler == 'W' ? "Weiß" : "Schwarz");
     } else {
         snprintf(meldung, groesse, "FEHLER: Ungültiger Zug.");
     }

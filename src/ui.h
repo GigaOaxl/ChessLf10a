@@ -8,6 +8,12 @@ void bildschirm_leeren(void);
 /* Zeichnet das Brett mit Rahmen, Spalten a-h und Zeilen 8-1 komplett neu. */
 void spielfeld_ausgeben(char spielfeld[8][8]);
 
+/* Zeigt Spieler am Zug und Zugnummer (E1, E3). */
+void status_ausgeben(void);
+
+/* Zeigt die letzten Zuege des Zugprotokolls (E5). */
+void protokoll_ausgeben(void);
+
 /* Zeigt das Hauptmenue (S7). */
 void menue_anzeigen(void);
 

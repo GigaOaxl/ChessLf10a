@@ -18,7 +18,14 @@ enum {
     ZUG_UNGUELTIG           /* Zug verstoesst gegen die Bewegungsregeln (Experten) */
 };
 
-/* Stellt die Ausgangsstellung her. */
+/* Spieldaten (Experten). Der Kollege definiert sie, das Frontend liest sie nur. */
+#define PROTOKOLL_MAX 500
+extern char aktuellerSpieler;               /* 'W' = Weiss, 'S' = Schwarz */
+extern int  zugnummer;                      /* Nummer des naechsten Zuges, beginnt bei 1 */
+extern char zugprotokoll[PROTOKOLL_MAX][16]; /* je Zeile z.B. "1. e2 -> e4" */
+extern int  zugprotokollAnzahl;             /* Anzahl gespeicherter Zuege */
+
+/* Stellt die Ausgangsstellung her (setzt auch Spieler, Zugnummer, Protokoll zurueck). */
 void spielfeld_initialisieren(char spielfeld[8][8]);
 
 /* Wandelt z.B. "e2" in Zeile/Spalte um. Rueckgabe: 1 = gueltig, 0 = ungueltig. */
