@@ -174,6 +174,7 @@ static int bauer_darf_ziehen(Feld spielfeld[8][8], int startZeile, int startSpal
 /* Waehlt die Regel passend zur Figur auf dem Startfeld. 1 = Zug erlaubt. */
 static int figur_darf_ziehen(Feld spielfeld[8][8], int startZeile, int startSpalte, int zielZeile, int zielSpalte)
 {
+    /* Figurbuchstaben: T Turm, L Laeufer, S Springer, D Dame, K Koenig, B Bauer */
     switch (spielfeld[startZeile][startSpalte].figur) {
     case 'T': return turm_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
     case 'L': return laeufer_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
