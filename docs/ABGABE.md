@@ -30,6 +30,7 @@ Zug erfolgreich.
 |---|---|
 | `spielfeld_initialisieren` | Ausgangsstellung, setzt Spieler, Zugnummer und Protokoll zurück |
 | `feld_ermitteln` | `"e2"` in Zeile/Spalte umwandeln, prüft die Eingabe (1 gültig, 0 ungültig) |
+| `startfeld_pruefen` | Prüft nur das Startfeld (leer / fremde Figur), Grundlage des Early Exits |
 | `figur_bewegen` | Prüft und führt einen Zug aus. Gibt `ZUG_OK` oder einen Fehlercode zurück |
 | `spielstand_speichern` | Schreibt Zugnummer, Spieler, Brett und Protokoll in eine Textdatei |
 | `spielstand_laden` | Liest und prüft die Datei, bei Fehler bleibt der Spielstand unverändert |

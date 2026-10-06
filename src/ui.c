@@ -5,7 +5,7 @@
 #include "backend.h"
 #include "ui.h"
 
-void bildschirm_leeren(void)
+static void bildschirm_leeren(void)
 {
     printf("\033[H\033[2J\033[3J"); /* Cursor oben, Bildschirm und Scrollback leeren */
 }
@@ -30,7 +30,7 @@ static const char *seitenbeschriftung(int zeile)
     return "";
 }
 
-void spielfeld_ausgeben(Feld spielfeld[8][8])
+static void spielfeld_ausgeben(Feld spielfeld[8][8])
 {
     printf("    a b c d e f g h\n");
     printf("  +-----------------+\n");
@@ -51,7 +51,7 @@ void spielfeld_ausgeben(Feld spielfeld[8][8])
 
 #define PROTOKOLL_ANZEIGE 3 /* so viele letzte Zuege werden gezeigt */
 
-void status_ausgeben(void)
+static void status_ausgeben(void)
 {
     if (aktuellerSpieler == 'W') {
         printf("\n>>> Zug %d: WEISS ist am Zug. Du bewegst die GROSSEN Buchstaben (unten). <<<\n", zugnummer);
@@ -60,7 +60,7 @@ void status_ausgeben(void)
     }
 }
 
-void protokoll_ausgeben(void)
+static void protokoll_ausgeben(void)
 {
     int erster = zugprotokollAnzahl - PROTOKOLL_ANZEIGE;
     if (erster < 0) {
@@ -72,7 +72,7 @@ void protokoll_ausgeben(void)
     }
 }
 
-void menue_anzeigen(void)
+static void menue_anzeigen(void)
 {
     printf("\n=== C-SCHACH ===\n");
     printf("1 - Spielfeld anzeigen    4 - Spielstand laden\n");
@@ -100,9 +100,10 @@ void text_einlesen(const char *frage, char eingabe[], int groesse)
     eingabe[strcspn(eingabe, "\n")] = '\0';
 }
 
-int feld_einlesen(const char *frage, char feld[], int *zeile, int *spalte)
+int feld_einlesen(const char *frage, int *zeile, int *spalte)
 {
-    text_einlesen(frage, feld, 16);
+    char feld[16];
+    text_einlesen(frage, feld, sizeof feld);
     return feld_ermitteln(feld, zeile, spalte);
 }
 
@@ -127,10 +128,11 @@ static const char *regel_text(Feld spielfeld[8][8], int sz, int ss, int zz, int 
 }
 
 void zugfehler_text(int code, Feld spielfeld[8][8], int sz, int ss, int zz, int zs,
-                    const char *startfeld, char meldung[], int groesse)
+                    char meldung[], int groesse)
 {
     if (code == ZUG_STARTFELD_LEER) {
-        snprintf(meldung, groesse, "FEHLER: Auf %s befindet sich keine Figur.", startfeld);
+        snprintf(meldung, groesse, "FEHLER: Auf %c%c befindet sich keine Figur.",
+                 'a' + ss, '8' - sz);
     } else if (code == ZUG_FALSCHE_FARBE) {
         snprintf(meldung, groesse, "FEHLER: Diese Figur gehört nicht zu %s.",
                  aktuellerSpieler == 'W' ? "Weiß" : "Schwarz");

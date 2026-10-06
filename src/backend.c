@@ -235,19 +235,28 @@ static void zug_protokollieren(int sz, int ss, int zz, int zs)
     zugprotokollAnzahl++;
 }
 
+int startfeld_pruefen(Feld spielfeld[8][8], int zeile, int spalte)
+{
+    if (ist_leer(spielfeld[zeile][spalte])) {
+        return ZUG_STARTFELD_LEER;
+    }
+    if (!gehoert_spieler(spielfeld[zeile][spalte], aktuellerSpieler)) {
+        return ZUG_FALSCHE_FARBE;
+    }
+    return ZUG_OK;
+}
+
 int figur_bewegen(Feld spielfeld[8][8],
                   int startZeile, int startSpalte,
                   int zielZeile, int zielSpalte)
 {
     Feld figur = spielfeld[startZeile][startSpalte];
     Feld ziel = spielfeld[zielZeile][zielSpalte];
+    int startCode = startfeld_pruefen(spielfeld, startZeile, startSpalte);
 
     /* Pruefungen in dieser Reihenfolge; die erste, die fehlschlaegt, bricht ab. */
-    if (ist_leer(figur)) {
-        return ZUG_STARTFELD_LEER;
-    }
-    if (!gehoert_spieler(figur, aktuellerSpieler)) {
-        return ZUG_FALSCHE_FARBE;
+    if (startCode != ZUG_OK) {
+        return startCode;
     }
     if (startZeile == zielZeile && startSpalte == zielSpalte) {
         return ZUG_UNGUELTIG;                         /* Figur bleibt stehen */

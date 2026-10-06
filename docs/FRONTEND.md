@@ -14,22 +14,13 @@ make        # baut ./schach (Frontend + Backend)
 | `src/backend.h` | Vertrag mit der Spiellogik (Kollege) |
 | `src/backend.c` | Spiellogik |
 
-## Funktionen (ui.c)
-| Funktion | Aufgabe |
-|---|---|
-| `bildschirm_leeren` | Konsole leeren (ANSI) |
-| `spielfeld_ausgeben` | Brett mit Rahmen, a-h, 8-1 zeichnen |
-| `status_ausgeben` | Zugnummer und Spieler am Zug |
-| `protokoll_ausgeben` | letzte 5 Zuege |
-| `menue_anzeigen` | Hauptmenue 1-5, 0 |
-| `seite_anzeigen` | kompletter Redraw: leeren, Brett, Status, Protokoll, Meldung, Menue |
-| `text_einlesen` | eine Zeile lesen |
-| `feld_einlesen` | Feld wie "e2" lesen und per `feld_ermitteln` pruefen |
-| `zugfehler_text` | Fehlercode -> Meldung `FEHLER: ...` |
+## Funktionen
+Siehe `docs/ABGABE.md`. Nach aussen sichtbar sind nur `seite_anzeigen`, `text_einlesen`,
+`feld_einlesen` und `zugfehler_text` (`ui.h`); der Rest in `ui.c` ist `static`.
 
 ## Early Exit bei der Zugeingabe
-`zug_eingeben` (in `main.c`) meldet ein ungueltiges, leeres oder fremdes Startfeld sofort und fragt
-dann gar nicht erst nach dem Zielfeld.
+`zug_eingeben` (in `main.c`) meldet ein ungueltiges, leeres oder fremdes Startfeld sofort
+(Pruefung per `startfeld_pruefen` aus dem Backend) und fragt dann nicht nach dem Zielfeld.
 
 ## Self-updating
 `main.c` ruft nach jeder Aktion `seite_anzeigen` auf. Das Brett wird immer neu aus

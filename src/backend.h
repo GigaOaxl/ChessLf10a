@@ -53,6 +53,9 @@ void spielfeld_initialisieren(Feld spielfeld[8][8]);
 /* Wandelt z.B. "e2" in Zeile/Spalte um. Rueckgabe: 1 = gueltig, 0 = ungueltig. */
 int feld_ermitteln(char feld[], int *zeile, int *spalte);
 
+/* Prueft nur das Startfeld: ZUG_OK, ZUG_STARTFELD_LEER oder ZUG_FALSCHE_FARBE. Aendert nichts. */
+int startfeld_pruefen(Feld spielfeld[8][8], int zeile, int spalte);
+
 /* Verschiebt eine Figur. Rueckgabe: ZUG_OK oder ein Fehlercode (siehe oben). */
 int figur_bewegen(Feld spielfeld[8][8],
                   int startZeile, int startSpalte,

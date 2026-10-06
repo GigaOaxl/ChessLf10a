@@ -1,17 +1,10 @@
 # Schnittstelle Frontend <-> Spiellogik
 
 Das Brett ist `Feld spielfeld[8][8]` mit `Feld { char figur; char farbe; }` (siehe `backend.h`).
-Fuer Anzeige und Datei wandeln `feld_zeichen` / `feld_aus_zeichen` zwischen Feld und Zeichen um.
+Fuer Anzeige und Datei wandelt `feld_zeichen` ein Feld in ein Zeichen um.
 
-Der Vertrag steht in `src/backend.h`. Das Frontend ruft nur diese Funktionen auf.
-
-| Funktion | Zweck | Rueckgabe |
-|---|---|---|
-| `spielfeld_initialisieren` | Ausgangsstellung | - |
-| `feld_ermitteln` | "e2" -> Zeile/Spalte | 1 gueltig, 0 ungueltig |
-| `figur_bewegen` | Figur verschieben | `ZUG_OK` oder Fehlercode |
-| `spielstand_speichern` | Array in Datei | 1 ok, 0 Fehler |
-| `spielstand_laden` | Datei ins Array | 1 ok, 0 Fehler |
+Der Vertrag steht in `src/backend.h` (Funktionen dort kommentiert, Uebersicht in `docs/ABGABE.md`).
+Neu fuer das Frontend: `startfeld_pruefen` meldet leeres oder fremdes Startfeld sofort (Early Exit).
 
 ## Fehlercode -> Meldung (macht das Frontend)
 | Code | Text |

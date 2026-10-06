@@ -12,37 +12,29 @@
  */
 static void zug_eingeben(Feld spielfeld[8][8], char meldung[], int groesse)
 {
-    char start[16], ziel[16];
     int startZeile, startSpalte, zielZeile, zielSpalte;
 
-    if (!feld_einlesen("Figur auf Feld (z.B. e2): ", start, &startZeile, &startSpalte)) {
+    if (!feld_einlesen("Figur auf Feld (z.B. e2): ", &startZeile, &startSpalte)) {
         snprintf(meldung, groesse, "FEHLER: Ungültiges Spielfeld.");
         return;
     }
 
-    Feld figur = spielfeld[startZeile][startSpalte];
-    if (figur.figur == '.') {
-        zugfehler_text(ZUG_STARTFELD_LEER, spielfeld, startZeile, startSpalte, startZeile, startSpalte,
-                       start, meldung, groesse);
-        return;
-    }
-    if (figur.farbe != aktuellerSpieler) {
-        zugfehler_text(ZUG_FALSCHE_FARBE, spielfeld, startZeile, startSpalte, startZeile, startSpalte,
-                       start, meldung, groesse);
+    int code = startfeld_pruefen(spielfeld, startZeile, startSpalte);
+    if (code != ZUG_OK) {
+        zugfehler_text(code, spielfeld, startZeile, startSpalte, startZeile, startSpalte, meldung, groesse);
         return;
     }
 
-    if (!feld_einlesen("Ziel-Feld (z.B. e4): ", ziel, &zielZeile, &zielSpalte)) {
+    if (!feld_einlesen("Ziel-Feld (z.B. e4): ", &zielZeile, &zielSpalte)) {
         snprintf(meldung, groesse, "FEHLER: Ungültiges Spielfeld.");
         return;
     }
 
-    int code = figur_bewegen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
+    code = figur_bewegen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
     if (code == ZUG_OK) {
         snprintf(meldung, groesse, "Zug erfolgreich.");
     } else {
-        zugfehler_text(code, spielfeld, startZeile, startSpalte, zielZeile, zielSpalte,
-                       start, meldung, groesse);
+        zugfehler_text(code, spielfeld, startZeile, startSpalte, zielZeile, zielSpalte, meldung, groesse);
     }
 }
 

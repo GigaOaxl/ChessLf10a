@@ -68,6 +68,11 @@ int main(void)
     pruefe("Schwarz darf keine weisse Figur ziehen", zug(f, "e4", "e5") == ZUG_FALSCHE_FARBE);
     pruefe("falscher Zug aendert nichts", aktuellerSpieler == 'S' && feld_an(f, "e4") == 'B');
 
+    /* startfeld_pruefen (Early Exit im Frontend) */
+    pruefe("Startfeld e5 leer", startfeld_pruefen(f, 3, 4) == ZUG_STARTFELD_LEER);
+    pruefe("Startfeld e7 gehoert Schwarz", startfeld_pruefen(f, 1, 4) == ZUG_OK);
+    pruefe("Startfeld e4 (Weiss) gehoert nicht Schwarz", startfeld_pruefen(f, 4, 4) == ZUG_FALSCHE_FARBE);
+
     /* Testfall 3: leeres Startfeld */
     pruefe("e5 leer", zug(f, "e5", "e6") == ZUG_STARTFELD_LEER);
 
