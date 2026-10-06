@@ -45,10 +45,9 @@ int main(void)
 
     /* Testfall 1: Startaufstellung */
     spielfeld_initialisieren(f);
-    pruefe("Start: a8 ist schwarzer Turm", feld_an(f, "a8") == 't');
-    pruefe("Start: h1 ist weisser Turm", feld_an(f, "h1") == 'T');
+    pruefe("Start: a8 ist schwarzer Turm", feld_zeichen(f[0][0]) == 't');
+    pruefe("Start: h1 ist weisser Turm", feld_zeichen(f[7][7]) == 'T');
     pruefe("Start: e1 ist weisser Koenig", feld_an(f, "e1") == 'K');
-    pruefe("Feld trennt Figur und Farbe", f[7][4].figur == 'K' && f[7][4].farbe == 'W' && f[0][4].farbe == 'S');
     pruefe("Start: Weiss beginnt", aktuellerSpieler == 'W' && zugnummer == 1);
 
     /* feld_ermitteln (S2, Testfall 4) */

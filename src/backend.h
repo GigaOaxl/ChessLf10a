@@ -6,38 +6,30 @@
  * Aenderungen an diesem Vertrag nur nach Absprache.
  *
  * Koordinaten: spielfeld[0][0] = a8, spielfeld[7][7] = h1.
- * Spielfeld: Feld spielfeld[8][8] (siehe Feld unten).
  */
 #ifndef BACKEND_H
 #define BACKEND_H
 
-#include <ctype.h>
-
 /*
  * Ein Feld des Bretts. Figur und Farbe sind getrennt gespeichert.
- *   figur: 'K' 'D' 'T' 'L' 'S' 'B' oder '.' (leer)
- *   farbe: 'W' (Weiss), 'S' (Schwarz) oder '.' (leer)
+ *   figur: 'K' Koenig, 'D' Dame, 'T' Turm, 'L' Laeufer, 'S' Springer, 'B' Bauer, '.' leer
+ *   farbe: 'W' Weiss, 'S' Schwarz, '-' kein Spieler (leeres Feld)
  */
 typedef struct {
     char figur;
     char farbe;
 } Feld;
 
-/* Anzeige-/Dateizeichen -> Feld. Gross = Weiss (z.B. 'B'), klein = Schwarz (z.B. 'b'), '.' = leer. */
-static inline Feld feld_aus_zeichen(char zeichen)
-{
-    Feld feld = { '.', '.' };
-    if (zeichen != '.') {
-        feld.figur = (char)toupper((unsigned char)zeichen);
-        feld.farbe = isupper((unsigned char)zeichen) ? 'W' : 'S';
-    }
-    return feld;
-}
-
-/* Feld -> Anzeige-/Dateizeichen (Umkehrung von feld_aus_zeichen). */
+/*
+ * Zeichen fuer Anzeige und Spielstand-Datei: Weiss = GROSSBUCHSTABE, Schwarz = kleinbuchstabe,
+ * leer = '.'. Beispiel: {'B','W'} -> 'B', {'B','S'} -> 'b'.
+ */
 static inline char feld_zeichen(Feld feld)
 {
-    return feld.farbe == 'S' ? (char)tolower((unsigned char)feld.figur) : feld.figur;
+    if (feld.figur == '.') {
+        return '.';
+    }
+    return feld.farbe == 'S' ? (char)(feld.figur - 'A' + 'a') : feld.figur;
 }
 
 /* Rueckgabecodes von figur_bewegen: 0 = Zug ausgefuehrt, alles andere = Fehler. */

@@ -9,14 +9,13 @@
  *   5. Speichern und Laden
  *
  * Koordinaten: spielfeld[0][0] = a8, spielfeld[7][7] = h1.
- * Figur und Farbe stehen getrennt im Feld (siehe backend.h). Weiss zieht nach OBEN
- * (Zeile wird kleiner), Schwarz nach UNTEN (Zeile wird groesser). In Dateien und im
- * Anfangs-Array steht Weiss als Grossbuchstabe, Schwarz als Kleinbuchstabe.
+ * Jedes Feld ist ein Feld-struct (Figur + Farbe getrennt, siehe backend.h).
+ * Weisse Figuren ziehen nach OBEN (Zeile wird kleiner), schwarze nach UNTEN.
+ * In der Spielstand-Datei steht Weiss als Grossbuchstabe, Schwarz als Kleinbuchstabe.
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include "backend.h"
 
 /* ---------- 1. Spieldaten ---------- */
@@ -28,16 +27,39 @@ int zugprotokollAnzahl = 0;
 
 /* ---------- 2. Hilfsfunktionen fuer Figuren ---------- */
 
-/* 1, wenn das Feld eine Figur des Spielers 'W' oder 'S' enthaelt. */
-static int gehoert_spieler(Feld feld, char spieler)
+/* 1, wenn auf dem Feld keine Figur steht. */
+static int ist_leer(Feld feld)
 {
-    return feld.farbe == spieler;
+    return feld.figur == '.';
 }
 
-/* 1, wenn beide Felder Figuren verschiedener Spieler enthalten (kein Feld leer). */
+/* 1, wenn die Figur auf dem Feld dem Spieler 'W' oder 'S' gehoert. */
+static int gehoert_spieler(Feld feld, char spieler)
+{
+    return !ist_leer(feld) && feld.farbe == spieler;
+}
+
+/* 1, wenn beide Felder Figuren haben und die Farben verschieden sind. */
 static int sind_gegner(Feld feldA, Feld feldB)
 {
-    return feldA.farbe != '.' && feldB.farbe != '.' && feldA.farbe != feldB.farbe;
+    return !ist_leer(feldA) && !ist_leer(feldB) && feldA.farbe != feldB.farbe;
+}
+
+/* Baut ein Feld aus einem Zeichen der Spielstand-Datei (Gross = Weiss, klein = Schwarz). */
+static Feld feld_aus_zeichen(char zeichen)
+{
+    Feld feld;
+    if (zeichen == '.') {
+        feld.figur = '.';
+        feld.farbe = '-';
+    } else if (zeichen >= 'a' && zeichen <= 'z') {
+        feld.figur = (char)(zeichen - 'a' + 'A');
+        feld.farbe = 'S';
+    } else {
+        feld.figur = zeichen;
+        feld.farbe = 'W';
+    }
+    return feld;
 }
 
 /* Vorzeichen einer Zahl: -1, 0 oder +1. Gibt die Laufrichtung eines Zuges an. */
@@ -69,7 +91,7 @@ static int weg_ist_frei(Feld spielfeld[8][8],
     int spalte = startSpalte + schrittSpalte;
 
     while (zeile != zielZeile || spalte != zielSpalte) {
-        if (spielfeld[zeile][spalte].figur != '.') {
+        if (!ist_leer(spielfeld[zeile][spalte])) {
             return 0;
         }
         zeile += schrittZeile;
@@ -128,20 +150,20 @@ static int koenig_darf(int sz, int ss, int zz, int zs)
 static int bauer_darf(Feld spielfeld[8][8], int sz, int ss, int zz, int zs)
 {
     Feld bauer = spielfeld[sz][ss];
-    int richtung = bauer.farbe == 'W' ? -1 : 1;   /* Weiss: Zeile wird kleiner */
-    int grundreihe = bauer.farbe == 'W' ? 6 : 1;     /* Zeile, in der die Bauern starten */
+    int richtung = bauer.farbe == 'W' ? -1 : 1;     /* Weiss: Zeile wird kleiner */
+    int grundreihe = bauer.farbe == 'W' ? 6 : 1;    /* Zeile, in der die Bauern starten */
     int schritt = zz - sz;
     int seitwaerts = abs(zs - ss);
 
     if (seitwaerts == 0) {
-        if (spielfeld[zz][zs].figur != '.') {
+        if (!ist_leer(spielfeld[zz][zs])) {
             return 0;                             /* geradeaus nie auf eine Figur */
         }
         if (schritt == richtung) {
             return 1;
         }
         return sz == grundreihe && schritt == 2 * richtung &&
-               spielfeld[sz + richtung][ss].figur == '.';
+               ist_leer(spielfeld[sz + richtung][ss]);
     }
     if (seitwaerts == 1 && schritt == richtung) {
         return sind_gegner(bauer, spielfeld[zz][zs]);
@@ -221,7 +243,7 @@ int figur_bewegen(Feld spielfeld[8][8],
     Feld ziel = spielfeld[zielZeile][zielSpalte];
 
     /* Pruefungen in dieser Reihenfolge; die erste, die fehlschlaegt, bricht ab. */
-    if (figur.figur == '.') {
+    if (ist_leer(figur)) {
         return ZUG_STARTFELD_LEER;
     }
     if (!gehoert_spieler(figur, aktuellerSpieler)) {

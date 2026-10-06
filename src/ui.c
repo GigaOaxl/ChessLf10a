@@ -1,7 +1,6 @@
 /* ui.c - Anzeige und Eingabe (Frontend). */
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include "backend.h"
 #include "ui.h"
@@ -11,10 +10,10 @@ void bildschirm_leeren(void)
     printf("\033[H\033[2J\033[3J"); /* Cursor oben, Bildschirm und Scrollback leeren */
 }
 
-/* 1, wenn auf dem Feld eine Figur des Spielers steht, der gerade am Zug ist. */
+/* 1, wenn die Figur auf dem Feld dem Spieler gehoert, der gerade am Zug ist. */
 static int ist_am_zug(Feld feld)
 {
-    return feld.farbe == aktuellerSpieler;
+    return feld.figur != '.' && feld.farbe == aktuellerSpieler;
 }
 
 /* Beschriftung rechts neben dem Brett; der Spieler am Zug bekommt einen Pfeil. */
@@ -38,9 +37,8 @@ void spielfeld_ausgeben(Feld spielfeld[8][8])
     for (int zeile = 0; zeile < 8; zeile++) {
         printf("%d |", 8 - zeile);
         for (int spalte = 0; spalte < 8; spalte++) {
-            Feld feld = spielfeld[zeile][spalte];
-            char figur = feld_zeichen(feld);
-            if (ist_am_zug(feld)) {
+            char figur = feld_zeichen(spielfeld[zeile][spalte]);
+            if (ist_am_zug(spielfeld[zeile][spalte])) {
                 printf(" \033[1m%c\033[0m", figur);   /* fett: diese Figuren darf man ziehen */
             } else {
                 printf(" %c", figur);
