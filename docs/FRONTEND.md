@@ -27,6 +27,10 @@ make        # baut ./schach (Frontend + Backend)
 | `feld_einlesen` | Feld wie "e2" lesen und per `feld_ermitteln` pruefen |
 | `zugfehler_text` | Fehlercode -> Meldung `FEHLER: ...` |
 
+## Early Exit bei der Zugeingabe
+`zug_eingeben` (in `main.c`) meldet ein ungueltiges, leeres oder fremdes Startfeld sofort und fragt
+dann gar nicht erst nach dem Zielfeld.
+
 ## Self-updating
 `main.c` ruft nach jeder Aktion `seite_anzeigen` auf. Das Brett wird immer neu aus
 dem Array gezeichnet, nichts wird angehaengt. Eine bewegte Figur steht deshalb nie doppelt.

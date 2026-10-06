@@ -6,6 +6,46 @@
 
 #define DATEI_STANDARD "spielstand.txt"
 
+/*
+ * Fragt Start- und Zielfeld ab und fuehrt den Zug aus. Jeder Fehler beendet die Eingabe sofort:
+ * ein ungueltiges, leeres oder fremdes Startfeld wird gemeldet, BEVOR das Zielfeld gefragt wird.
+ */
+static void zug_eingeben(Feld spielfeld[8][8], char meldung[], int groesse)
+{
+    char start[16], ziel[16];
+    int startZeile, startSpalte, zielZeile, zielSpalte;
+
+    if (!feld_einlesen("Figur auf Feld (z.B. e2): ", start, &startZeile, &startSpalte)) {
+        snprintf(meldung, groesse, "FEHLER: Ungültiges Spielfeld.");
+        return;
+    }
+
+    Feld figur = spielfeld[startZeile][startSpalte];
+    if (figur.figur == '.') {
+        zugfehler_text(ZUG_STARTFELD_LEER, spielfeld, startZeile, startSpalte, startZeile, startSpalte,
+                       start, meldung, groesse);
+        return;
+    }
+    if (figur.farbe != aktuellerSpieler) {
+        zugfehler_text(ZUG_FALSCHE_FARBE, spielfeld, startZeile, startSpalte, startZeile, startSpalte,
+                       start, meldung, groesse);
+        return;
+    }
+
+    if (!feld_einlesen("Ziel-Feld (z.B. e4): ", ziel, &zielZeile, &zielSpalte)) {
+        snprintf(meldung, groesse, "FEHLER: Ungültiges Spielfeld.");
+        return;
+    }
+
+    int code = figur_bewegen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
+    if (code == ZUG_OK) {
+        snprintf(meldung, groesse, "Zug erfolgreich.");
+    } else {
+        zugfehler_text(code, spielfeld, startZeile, startSpalte, zielZeile, zielSpalte,
+                       start, meldung, groesse);
+    }
+}
+
 int main(void)
 {
     Feld spielfeld[8][8];
@@ -25,21 +65,7 @@ int main(void)
         if (auswahl == 1) {
             /* nichts zu tun: die Seite wird ohnehin neu gezeichnet */
         } else if (auswahl == 2) {
-            char start[16], ziel[16];
-            int startZeile, startSpalte, zielZeile, zielSpalte;
-
-            if (!feld_einlesen("Figur auf Feld (z.B. e2): ", start, &startZeile, &startSpalte) ||
-                !feld_einlesen("Ziel-Feld (z.B. e4): ", ziel, &zielZeile, &zielSpalte)) {
-                snprintf(meldung, sizeof meldung, "FEHLER: Ungültiges Spielfeld.");
-            } else {
-                int code = figur_bewegen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
-                if (code == ZUG_OK) {
-                    snprintf(meldung, sizeof meldung, "Zug erfolgreich.");
-                } else {
-                    zugfehler_text(code, spielfeld, startZeile, startSpalte, zielZeile, zielSpalte,
-                                   start, meldung, sizeof meldung);
-                }
-            }
+            zug_eingeben(spielfeld, meldung, sizeof meldung);
         } else if (auswahl == 3) {
             if (spielstand_speichern(spielfeld, DATEI_STANDARD)) {
                 snprintf(meldung, sizeof meldung, "Spielstand gespeichert.");
