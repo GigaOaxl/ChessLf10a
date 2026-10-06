@@ -13,18 +13,18 @@ static void bildschirm_leeren(void)
 /* 1, wenn die Figur auf dem Feld dem Spieler gehoert, der gerade am Zug ist. */
 static int ist_am_zug(Feld feld)
 {
-    return feld.figur != '.' && feld.farbe == aktuellerSpieler;
+    return feld.figur != FELD_LEER && feld.farbe == aktuellerSpieler;
 }
 
 /* Beschriftung rechts neben dem Brett; der Spieler am Zug bekommt einen Pfeil. */
 static const char *seitenbeschriftung(int zeile)
 {
     if (zeile == 0) {
-        return aktuellerSpieler == 'S' ? "  <== SCHWARZ (kleine Buchstaben) AM ZUG"
+        return aktuellerSpieler == FARBE_SCHWARZ ? "  <== SCHWARZ (kleine Buchstaben) AM ZUG"
                                        : "  Schwarz (kleine Buchstaben)";
     }
     if (zeile == 7) {
-        return aktuellerSpieler == 'W' ? "  <== WEISS (GROSSE Buchstaben) AM ZUG"
+        return aktuellerSpieler == FARBE_WEISS ? "  <== WEISS (GROSSE Buchstaben) AM ZUG"
                                        : "  Weiß (GROSSE Buchstaben)";
     }
     return "";
@@ -53,7 +53,7 @@ static void spielfeld_ausgeben(Feld spielfeld[8][8])
 
 static void status_ausgeben(void)
 {
-    if (aktuellerSpieler == 'W') {
+    if (aktuellerSpieler == FARBE_WEISS) {
         printf("\n>>> Zug %d: WEISS ist am Zug. Du bewegst die GROSSEN Buchstaben (unten). <<<\n", zugnummer);
     } else {
         printf("\n>>> Zug %d: SCHWARZ ist am Zug. Du bewegst die kleinen Buchstaben (oben). <<<\n", zugnummer);
@@ -108,12 +108,12 @@ int feld_einlesen(const char *frage, int *zeile, int *spalte)
 }
 
 /* Erklaert, warum eine Figur nicht so ziehen darf (Meldung E7). Brett ist noch unveraendert. */
-static const char *regel_text(Feld spielfeld[8][8], int sz, int ss, int zz, int zs)
+static const char *regel_text(Feld spielfeld[8][8], int startZeile, int startSpalte, int zielZeile, int zielSpalte)
 {
-    int dz = abs(zz - sz);
-    int ds = abs(zs - ss);
+    int dz = abs(zielZeile - startZeile);
+    int ds = abs(zielSpalte - startSpalte);
 
-    switch (spielfeld[sz][ss].figur) {
+    switch (spielfeld[startZeile][startSpalte].figur) {
     case 'T':
         return (dz > 0 && ds > 0) ? "Ein Turm kann sich nicht diagonal bewegen."
                                   : "Der Weg des Turms ist durch eine Figur blockiert.";
@@ -127,18 +127,19 @@ static const char *regel_text(Feld spielfeld[8][8], int sz, int ss, int zz, int 
     }
 }
 
-void zugfehler_text(int code, Feld spielfeld[8][8], int sz, int ss, int zz, int zs,
+void zugfehler_text(int code, Feld spielfeld[8][8], int startZeile, int startSpalte, int zielZeile, int zielSpalte,
                     char meldung[], int groesse)
 {
     if (code == ZUG_STARTFELD_LEER) {
-        snprintf(meldung, groesse, "FEHLER: Auf %c%c befindet sich keine Figur.",
-                 'a' + ss, '8' - sz);
+        char startfeld[3];
+        feld_name_bilden(startZeile, startSpalte, startfeld);
+        snprintf(meldung, groesse, "FEHLER: Auf %s befindet sich keine Figur.", startfeld);
     } else if (code == ZUG_FALSCHE_FARBE) {
         snprintf(meldung, groesse, "FEHLER: Diese Figur gehört nicht zu %s.",
-                 aktuellerSpieler == 'W' ? "Weiß" : "Schwarz");
-    } else if (sz == zz && ss == zs) {
+                 aktuellerSpieler == FARBE_WEISS ? "Weiß" : "Schwarz");
+    } else if (startZeile == zielZeile && startSpalte == zielSpalte) {
         snprintf(meldung, groesse, "FEHLER: Start- und Zielfeld sind gleich.");
     } else {
-        snprintf(meldung, groesse, "FEHLER: %s", regel_text(spielfeld, sz, ss, zz, zs));
+        snprintf(meldung, groesse, "FEHLER: %s", regel_text(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte));
     }
 }

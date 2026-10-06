@@ -20,16 +20,24 @@ typedef struct {
     char farbe;
 } Feld;
 
+/* Werte fuer Feld.farbe und aktuellerSpieler. ACHTUNG: 'S' bei der Figur heisst Springer! */
+#define FARBE_WEISS   'W'
+#define FARBE_SCHWARZ 'S'
+#define FARBE_KEINE   '-'   /* leeres Feld */
+
+/* Wert fuer Feld.figur auf einem leeren Feld. */
+#define FELD_LEER '.'
+
 /*
  * Zeichen fuer Anzeige und Spielstand-Datei: Weiss = GROSSBUCHSTABE, Schwarz = kleinbuchstabe,
  * leer = '.'. Beispiel: {'B','W'} -> 'B', {'B','S'} -> 'b'.
  */
 static inline char feld_zeichen(Feld feld)
 {
-    if (feld.figur == '.') {
-        return '.';
+    if (feld.figur == FELD_LEER) {
+        return FELD_LEER;
     }
-    return feld.farbe == 'S' ? (char)(feld.figur - 'A' + 'a') : feld.figur;
+    return feld.farbe == FARBE_SCHWARZ ? (char)(feld.figur - 'A' + 'a') : feld.figur;
 }
 
 /* Rueckgabecodes von figur_bewegen: 0 = Zug ausgefuehrt, alles andere = Fehler. */
@@ -42,7 +50,7 @@ enum {
 
 /* Spieldaten (Experten). Der Kollege definiert sie, das Frontend liest sie nur. */
 #define PROTOKOLL_MAX 500
-extern char aktuellerSpieler;               /* 'W' = Weiss, 'S' = Schwarz */
+extern char aktuellerSpieler;               /* FARBE_WEISS oder FARBE_SCHWARZ */
 extern int  zugnummer;                      /* Nummer des naechsten Zuges, beginnt bei 1 */
 extern char zugprotokoll[PROTOKOLL_MAX][16]; /* je Zeile z.B. "1. e2 -> e4" */
 extern int  zugprotokollAnzahl;             /* Anzahl gespeicherter Zuege */
@@ -51,7 +59,10 @@ extern int  zugprotokollAnzahl;             /* Anzahl gespeicherter Zuege */
 void spielfeld_initialisieren(Feld spielfeld[8][8]);
 
 /* Wandelt z.B. "e2" in Zeile/Spalte um. Rueckgabe: 1 = gueltig, 0 = ungueltig. */
-int feld_ermitteln(char feld[], int *zeile, int *spalte);
+int feld_ermitteln(char feldname[], int *zeile, int *spalte);
+
+/* Umkehrung von feld_ermitteln: Zeile 7, Spalte 4 -> "e1". name braucht 3 Zeichen Platz. */
+void feld_name_bilden(int zeile, int spalte, char name[3]);
 
 /* Prueft nur das Startfeld: ZUG_OK, ZUG_STARTFELD_LEER oder ZUG_FALSCHE_FARBE. Aendert nichts. */
 int startfeld_pruefen(Feld spielfeld[8][8], int zeile, int spalte);

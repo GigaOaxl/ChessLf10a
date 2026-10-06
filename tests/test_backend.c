@@ -48,7 +48,7 @@ int main(void)
     pruefe("Start: a8 ist schwarzer Turm", feld_zeichen(f[0][0]) == 't');
     pruefe("Start: h1 ist weisser Turm", feld_zeichen(f[7][7]) == 'T');
     pruefe("Start: e1 ist weisser Koenig", feld_an(f, "e1") == 'K');
-    pruefe("Start: Weiss beginnt", aktuellerSpieler == 'W' && zugnummer == 1);
+    pruefe("Start: Weiss beginnt", aktuellerSpieler == FARBE_WEISS && zugnummer == 1);
 
     /* feld_ermitteln (S2, Testfall 4) */
     strcpy(eingabe, "a8");  pruefe("a8 -> [0][0]", feld_ermitteln(eingabe, &z, &s) && z == 0 && s == 0);
@@ -61,12 +61,21 @@ int main(void)
     /* Testfall 2: e2 -> e4, Spielerwechsel, Zugnummer, Protokoll */
     pruefe("e2-e4 ok", zug(f, "e2", "e4") == ZUG_OK);
     pruefe("e2 leer, e4 Bauer", feld_an(f, "e2") == '.' && feld_an(f, "e4") == 'B');
-    pruefe("Schwarz am Zug, Zugnummer 2", aktuellerSpieler == 'S' && zugnummer == 2);
+    pruefe("Schwarz am Zug, Zugnummer 2", aktuellerSpieler == FARBE_SCHWARZ && zugnummer == 2);
     pruefe("Protokoll: 1. e2 -> e4", zugprotokollAnzahl == 1 && strcmp(zugprotokoll[0], "1. e2 -> e4") == 0);
 
     /* Testfall 9: gegnerische Figur bewegen (Weiss versucht schwarzen Bauern) */
     pruefe("Schwarz darf keine weisse Figur ziehen", zug(f, "e4", "e5") == ZUG_FALSCHE_FARBE);
-    pruefe("falscher Zug aendert nichts", aktuellerSpieler == 'S' && feld_an(f, "e4") == 'B');
+    pruefe("falscher Zug aendert nichts", aktuellerSpieler == FARBE_SCHWARZ && feld_an(f, "e4") == 'B');
+
+    /* feld_name_bilden: Umkehrung von feld_ermitteln */
+    {
+        char name[3];
+        feld_name_bilden(7, 4, name);
+        pruefe("Zeile 7, Spalte 4 heisst e1", strcmp(name, "e1") == 0);
+        feld_name_bilden(0, 0, name);
+        pruefe("Zeile 0, Spalte 0 heisst a8", strcmp(name, "a8") == 0);
+    }
 
     /* startfeld_pruefen (Early Exit im Frontend) */
     pruefe("Startfeld e5 leer", startfeld_pruefen(f, 3, 4) == ZUG_STARTFELD_LEER);
@@ -112,7 +121,7 @@ int main(void)
 
     /* Neues Spiel setzt zurueck */
     spielfeld_initialisieren(f);
-    pruefe("Neues Spiel setzt Daten zurueck", zugnummer == 1 && zugprotokollAnzahl == 0 && aktuellerSpieler == 'W');
+    pruefe("Neues Spiel setzt Daten zurueck", zugnummer == 1 && zugprotokollAnzahl == 0 && aktuellerSpieler == FARBE_WEISS);
 
     /* Testfaelle 5, 7: Speichern und Laden mit allen Zusatzdaten */
     zug(f, "e2", "e4"); zug(f, "e7", "e5"); zug(f, "g1", "f3");
@@ -120,7 +129,7 @@ int main(void)
     spielfeld_initialisieren(f);
     pruefe("Laden ok", spielstand_laden(f, "test_spielstand.txt") == 1);
     pruefe("Geladen: Brett", feld_an(f, "e4") == 'B' && feld_an(f, "e5") == 'b' && feld_an(f, "f3") == 'S');
-    pruefe("Geladen: Spieler und Zugnummer", aktuellerSpieler == 'S' && zugnummer == 4);
+    pruefe("Geladen: Spieler und Zugnummer", aktuellerSpieler == FARBE_SCHWARZ && zugnummer == 4);
     pruefe("Geladen: Protokoll", zugprotokollAnzahl == 3 && strcmp(zugprotokoll[2], "3. g1 -> f3") == 0);
 
     /* Testfall 8: falsche Datei */
