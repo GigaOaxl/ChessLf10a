@@ -12,7 +12,7 @@
 
 /*
  * Ein Feld des Bretts. Figur und Farbe sind getrennt gespeichert.
- *   figur: 'K' Koenig, 'D' Dame, 'T' Turm, 'L' Laeufer, 'S' Springer, 'B' Bauer, '.' leer
+ *   figur: FIGUR_KOENIG, FIGUR_DAME, FIGUR_TURM, FIGUR_LAEUFER, FIGUR_SPRINGER, FIGUR_BAUER oder FELD_LEER
  *   farbe: 'W' Weiss, 'S' Schwarz, '-' kein Spieler (leeres Feld)
  */
 typedef struct {
@@ -24,6 +24,16 @@ typedef struct {
 #define FARBE_WEISS   'W'
 #define FARBE_SCHWARZ 'S'
 #define FARBE_KEINE   '-'   /* leeres Feld */
+
+/* Buchstaben fuer Feld.figur. */
+enum {
+    FIGUR_KOENIG   = 'K',
+    FIGUR_DAME     = 'D',
+    FIGUR_TURM     = 'T',
+    FIGUR_LAEUFER  = 'L',
+    FIGUR_SPRINGER = 'S',
+    FIGUR_BAUER    = 'B'
+};
 
 /* Wert fuer Feld.figur auf einem leeren Feld. */
 #define FELD_LEER '.'

@@ -141,48 +141,42 @@ static int koenig_darf_ziehen(int startZeile, int startSpalte, int zielZeile, in
 }
 
 /*
- * Bauer:
+ * Waehlt die Regel passend zur Figur auf dem Startfeld. 1 = Zug erlaubt.
+ *
+ * Der Bauer ist der Sonderfall und wird zuerst geprueft (frueher Ausstieg): Seine Zugrichtung
+ * haengt von der Farbe ab, und ob er geradeaus ziehen oder schlagen darf, vom Zielfeld.
  *  - geradeaus 1 Feld, wenn das Zielfeld leer ist
- *  - geradeaus 2 Felder aus der Grundreihe, wenn beide Felder leer sind
+ *  - geradeaus 2 Felder aus der Grundreihe, wenn der ganze Weg leer ist
  *  - 1 Feld diagonal NUR zum Schlagen einer gegnerischen Figur
  * Nicht enthalten: en passant und Umwandlung.
  */
-static int bauer_darf_ziehen(Feld spielfeld[8][8], int startZeile, int startSpalte, int zielZeile, int zielSpalte)
-{
-    Feld bauer = spielfeld[startZeile][startSpalte];
-    int vorwaerts = bauer.farbe == FARBE_WEISS ? -1 : 1;     /* Weiss: Zeile wird kleiner, Schwarz: groesser */
-    int startreihe = bauer.farbe == FARBE_WEISS ? 6 : 1;    /* Zeile (Index), in der die Bauern starten */
-    int zeilenschritt = zielZeile - startZeile;
-    int spaltenschritt = abs(zielSpalte - startSpalte);
-
-    if (spaltenschritt == 0) {
-        if (!ist_leer(spielfeld[zielZeile][zielSpalte])) {
-            return 0;                             /* geradeaus nie auf eine Figur */
-        }
-        if (zeilenschritt == vorwaerts) {
-            return 1;
-        }
-        return startZeile == startreihe && zeilenschritt == 2 * vorwaerts &&
-               ist_leer(spielfeld[startZeile + vorwaerts][startSpalte]);
-    }
-    if (spaltenschritt == 1 && zeilenschritt == vorwaerts) {
-        return sind_gegner(bauer, spielfeld[zielZeile][zielSpalte]);
-    }
-    return 0;
-}
-
-/* Waehlt die Regel passend zur Figur auf dem Startfeld. 1 = Zug erlaubt. */
 static int figur_darf_ziehen(Feld spielfeld[8][8], int startZeile, int startSpalte, int zielZeile, int zielSpalte)
 {
-    /* Figurbuchstaben: T Turm, L Laeufer, S Springer, D Dame, K Koenig, B Bauer */
-    switch (spielfeld[startZeile][startSpalte].figur) {
-    case 'T': return turm_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
-    case 'L': return laeufer_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
-    case 'S': return springer_darf_ziehen(startZeile, startSpalte, zielZeile, zielSpalte);
-    case 'D': return dame_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
-    case 'K': return koenig_darf_ziehen(startZeile, startSpalte, zielZeile, zielSpalte);
-    case 'B': return bauer_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
-    default:  return 0;
+    Feld startFeld = spielfeld[startZeile][startSpalte];
+    Feld zielFeld = spielfeld[zielZeile][zielSpalte];
+
+    if (startFeld.figur == FIGUR_BAUER) {
+        int vorwaerts = startFeld.farbe == FARBE_WEISS ? -1 : 1;    /* Weiss: Zeile wird kleiner, Schwarz: groesser */
+        int startreihe = startFeld.farbe == FARBE_WEISS ? 6 : 1;    /* Zeile (Index), in der die Bauern starten */
+        int zeilenschritt = zielZeile - startZeile;
+        int spaltenschritt = abs(zielSpalte - startSpalte);
+
+        if (spaltenschritt == 0) {
+            int ein_feld = zeilenschritt == vorwaerts;
+            int zwei_felder = startZeile == startreihe && zeilenschritt == 2 * vorwaerts;
+            return (ein_feld || zwei_felder) && ist_leer(zielFeld) &&
+                   weg_ist_frei(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
+        }
+        return spaltenschritt == 1 && zeilenschritt == vorwaerts && sind_gegner(startFeld, zielFeld);
+    }
+
+    switch (startFeld.figur) {
+    case FIGUR_TURM:     return turm_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
+    case FIGUR_LAEUFER:  return laeufer_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
+    case FIGUR_SPRINGER: return springer_darf_ziehen(startZeile, startSpalte, zielZeile, zielSpalte);
+    case FIGUR_DAME:     return dame_darf_ziehen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);
+    case FIGUR_KOENIG:   return koenig_darf_ziehen(startZeile, startSpalte, zielZeile, zielSpalte);
+    default:             return 0;
     }
 }
 

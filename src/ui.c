@@ -121,18 +121,18 @@ static const char *regel_text(Feld spielfeld[8][8], int startZeile, int startSpa
     int zeilenabstand = abs(zielZeile - startZeile);
     int spaltenabstand = abs(zielSpalte - startSpalte);
 
-    /* Figurbuchstaben: T Turm, L Laeufer, S Springer, D Dame, K Koenig, sonst Bauer */
     switch (spielfeld[startZeile][startSpalte].figur) {
-    case 'T':
+    case FIGUR_TURM:
         return (zeilenabstand > 0 && spaltenabstand > 0) ? "Ein Turm kann sich nicht diagonal bewegen."
-                                  : "Der Weg des Turms ist durch eine Figur blockiert.";
-    case 'L':
+                                                         : "Der Weg des Turms ist durch eine Figur blockiert.";
+    case FIGUR_LAEUFER:
         return (zeilenabstand != spaltenabstand) ? "Ein Läufer kann sich nur diagonal bewegen."
-                          : "Der Weg des Läufers ist durch eine Figur blockiert.";
-    case 'S': return "Ein Springer zieht nur in L-Form (2 Felder und 1 Feld seitlich).";
-    case 'D': return "Eine Dame zieht nur gerade oder diagonal über freie Felder.";
-    case 'K': return "Ein König zieht nur ein Feld weit.";
-    default:  return "Ein Bauer zieht 1 Feld vor (2 aus der Grundreihe) und schlägt nur diagonal.";
+                                                 : "Der Weg des Läufers ist durch eine Figur blockiert.";
+    case FIGUR_SPRINGER: return "Ein Springer zieht nur in L-Form (2 Felder und 1 Feld seitlich).";
+    case FIGUR_DAME:     return "Eine Dame zieht nur gerade oder diagonal über freie Felder.";
+    case FIGUR_KOENIG:   return "Ein König zieht nur ein Feld weit.";
+    case FIGUR_BAUER:    return "Ein Bauer zieht 1 Feld vor (2 aus der Grundreihe) und schlägt nur diagonal.";
+    default:             return "Ungültiger Zug.";
     }
 }
 

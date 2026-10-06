@@ -103,6 +103,12 @@ int main(void)
     pruefe("Bauer rueckwaerts abgelehnt", zug(spielfeld, "d4", "d3") == ZUG_UNGUELTIG);
     pruefe("Bauer diagonal ohne Gegner abgelehnt", zug(spielfeld, "d4", "e5") == ZUG_UNGUELTIG);
 
+    /* Bauer-Doppelschritt ueber besetztes Zwischenfeld (Laeufer steht auf e3) */
+    spielfeld_initialisieren(spielfeld);
+    zug(spielfeld, "d2", "d3"); zug(spielfeld, "a7", "a6");
+    zug(spielfeld, "c1", "e3"); zug(spielfeld, "a6", "a5");
+    pruefe("Bauer e2-e4 ueber besetztes e3 abgelehnt", zug(spielfeld, "e2", "e4") == ZUG_UNGUELTIG);
+
     /* Testfall 10: Schlagen */
     spielfeld_initialisieren(spielfeld);
     zug(spielfeld, "e2", "e4");
