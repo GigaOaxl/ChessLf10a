@@ -1,0 +1,15 @@
+5
+W
+tsl.klst
+bbb.bbbb
+........
+...d....
+........
+........
+BBBB.BBB
+TSLDKLST
+4
+1. e2 -> e4
+2. d7 -> d5
+3. e4 -> d5
+4. d8 -> d5

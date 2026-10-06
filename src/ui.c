@@ -1,5 +1,7 @@
 /* ui.c - Anzeige und Eingabe (Frontend). */
 #include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include "backend.h"
 #include "ui.h"
@@ -11,7 +13,7 @@ void bildschirm_leeren(void)
 
 void spielfeld_ausgeben(char spielfeld[8][8])
 {
-    printf("  a b c d e f g h\n");
+    printf("    a b c d e f g h\n");
     printf("  +-----------------+\n");
     for (int zeile = 0; zeile < 8; zeile++) {
         printf("%d |", 8 - zeile);
@@ -80,14 +82,37 @@ int feld_einlesen(const char *frage, char feld[], int *zeile, int *spalte)
     return feld_ermitteln(feld, zeile, spalte);
 }
 
-void zugfehler_text(int code, const char *startfeld, char meldung[], int groesse)
+/* Erklaert, warum eine Figur nicht so ziehen darf (Meldung E7). Brett ist noch unveraendert. */
+static const char *regel_text(char spielfeld[8][8], int sz, int ss, int zz, int zs)
+{
+    int dz = abs(zz - sz);
+    int ds = abs(zs - ss);
+
+    switch (tolower((unsigned char)spielfeld[sz][ss])) {
+    case 't':
+        return (dz > 0 && ds > 0) ? "Ein Turm kann sich nicht diagonal bewegen."
+                                  : "Der Weg des Turms ist durch eine Figur blockiert.";
+    case 'l':
+        return (dz != ds) ? "Ein Läufer kann sich nur diagonal bewegen."
+                          : "Der Weg des Läufers ist durch eine Figur blockiert.";
+    case 's': return "Ein Springer zieht nur in L-Form (2 Felder und 1 Feld seitlich).";
+    case 'd': return "Eine Dame zieht nur gerade oder diagonal über freie Felder.";
+    case 'k': return "Ein König zieht nur ein Feld weit.";
+    default:  return "Ein Bauer zieht 1 Feld vor (2 aus der Grundreihe) und schlägt nur diagonal.";
+    }
+}
+
+void zugfehler_text(int code, char spielfeld[8][8], int sz, int ss, int zz, int zs,
+                    const char *startfeld, char meldung[], int groesse)
 {
     if (code == ZUG_STARTFELD_LEER) {
         snprintf(meldung, groesse, "FEHLER: Auf %s befindet sich keine Figur.", startfeld);
     } else if (code == ZUG_FALSCHE_FARBE) {
         snprintf(meldung, groesse, "FEHLER: Diese Figur gehört nicht zu %s.",
                  aktuellerSpieler == 'W' ? "Weiß" : "Schwarz");
+    } else if (sz == zz && ss == zs) {
+        snprintf(meldung, groesse, "FEHLER: Start- und Zielfeld sind gleich.");
     } else {
-        snprintf(meldung, groesse, "FEHLER: Ungültiger Zug.");
+        snprintf(meldung, groesse, "FEHLER: %s", regel_text(spielfeld, sz, ss, zz, zs));
     }
 }

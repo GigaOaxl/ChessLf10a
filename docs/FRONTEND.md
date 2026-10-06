@@ -34,7 +34,7 @@ dem Array gezeichnet, nichts wird angehaengt. Eine bewegte Figur steht deshalb n
 
 ## Beispielausgabe (nach e2 -> e4)
 ```
-  a b c d e f g h
+    a b c d e f g h
   +-----------------+
 8 | t s l d k l s t |
 7 | b b b b b b b b |

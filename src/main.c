@@ -36,7 +36,8 @@ int main(void)
                 if (code == ZUG_OK) {
                     snprintf(meldung, sizeof meldung, "Zug erfolgreich.");
                 } else {
-                    zugfehler_text(code, start, meldung, sizeof meldung);
+                    zugfehler_text(code, spielfeld, startZeile, startSpalte, zielZeile, zielSpalte,
+                                   start, meldung, sizeof meldung);
                 }
             }
         } else if (auswahl == 3) {

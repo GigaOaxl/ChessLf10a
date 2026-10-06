@@ -26,7 +26,10 @@ void text_einlesen(const char *frage, char eingabe[], int groesse);
 /* Liest ein Feld wie "e2". Rueckgabe: 1 = gueltig, 0 = ungueltig (Text bleibt in feld). */
 int feld_einlesen(const char *frage, char feld[], int *zeile, int *spalte);
 
-/* Schreibt die Meldung fuer einen Zugfehler (Code aus backend.h) in meldung. */
-void zugfehler_text(int code, const char *startfeld, char meldung[], int groesse);
+/* Schreibt die Meldung fuer einen Zugfehler (Code aus backend.h) in meldung.
+   Das Spielfeld muss noch vor dem Zug stehen, damit die Figur erkennbar ist. */
+void zugfehler_text(int code, char spielfeld[8][8], int startZeile, int startSpalte,
+                    int zielZeile, int zielSpalte,
+                    const char *startfeld, char meldung[], int groesse);
 
 #endif

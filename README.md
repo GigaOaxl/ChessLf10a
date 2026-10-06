@@ -54,13 +54,13 @@ Legende: ✅ fertig und getestet | ⚠️ teilweise | ❌ offen
 ### EXPERTEN (100 Punkte)
 | Nr | Aufgabe | Status | Hinweis |
 |---|---|---|---|
-| E1 | Spieler am Zug (`aktuellerSpieler`), Wechsel nach jedem Zug | ✅ | Anzeige als `Spieler: Weiß` statt `Weiß ist am Zug.` |
+| E1 | Spieler am Zug (`aktuellerSpieler`), Wechsel nach jedem Zug | ✅ | Anzeige `Zug N: Weiß ist am Zug ...` |
 | E2 | Nur eigene Figuren bewegen | ✅ | `FEHLER: Diese Figur gehört nicht zu ...` |
 | E3 | Zugnummer | ✅ | zaehlt jeden Halbzug (1. Weiss, 2. Schwarz, ...) |
 | E4 | Spielstand mit Spieler und Zugnummer | ✅ | Format siehe unten |
-| E5 | Zugprotokoll | ✅ | `1. e2 -> e4`, Anzeige der letzten 5 Zuege, Datei enthaelt alle |
+| E5 | Zugprotokoll | ✅ | `1. e2 -> e4`, Anzeige der letzten 3 Zuege, Datei enthaelt alle |
 | E6 | Figuren schlagen | ✅ | |
-| E7 | Regeln Turm, Laeufer, Springer | ⚠️ | Regeln fertig. Fehlermeldung ist allgemein (`Ungültiger Zug.`), nicht `Ein Turm kann sich nicht diagonal bewegen.` |
+| E7 | Regeln Turm, Laeufer, Springer | ✅ | Fehlertexte je Figur im Frontend (`ui.c`), z.B. `Ein Turm kann sich nicht diagonal bewegen.` |
 | Erweiterung | Dame, Koenig, Bauer | ✅ | Bauer ohne en passant und Umwandlung |
 
 ### Weitere Punkte der Aufgabenstellung
@@ -68,11 +68,11 @@ Legende: ✅ fertig und getestet | ⚠️ teilweise | ❌ offen
 |---|---|
 | Optional: `struct Feld` (Figur + Farbe getrennt) | ❌ nicht umgesetzt |
 | 10 Testfaelle | ✅ Faelle 1-5 und 7-10 als automatische Tests (`make test`), Fall 6 (Beenden) nur manuell im Menue |
-| Abgabe: Screenshot des Spielfelds | ❌ offen |
-| Abgabe: kurze Beschreibung der Loesung | ⚠️ dieses README, noch nicht als eigenes Dokument |
-| Abgabe: Dokumentation der Funktionen | ⚠️ Kommentare in `backend.c`, `docs/FRONTEND.md` (nur Frontend) |
-| Abgabe: Beschreibung der implementierten Schachregeln | ⚠️ siehe unten, noch nicht ausformuliert fuer die Abgabe |
-| Abgabe: gespeicherter Spielstand als Beispiel | ❌ offen |
+| Abgabe: Screenshot des Spielfelds | ✅ Textausgabe in `docs/ABGABE.md` |
+| Abgabe: kurze Beschreibung der Loesung | ✅ `docs/ABGABE.md` |
+| Abgabe: Dokumentation der Funktionen | ✅ `docs/ABGABE.md` (Backend und Frontend) |
+| Abgabe: Beschreibung der implementierten Schachregeln | ✅ Abschnitt "Schachregeln im Spiel" |
+| Abgabe: gespeicherter Spielstand als Beispiel | ✅ `docs/beispiel_spielstand.txt` |
 | Reflexionsaufgabe (7 Fragen) | ❌ offen |
 
 ## Schachregeln im Spiel
