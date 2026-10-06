@@ -37,6 +37,7 @@ static inline char feld_zeichen(Feld feld)
     if (feld.figur == FELD_LEER) {
         return FELD_LEER;
     }
+    /* Schwarz: Grossbuchstabe in Kleinbuchstabe umwandeln ('B' -> 'b') */
     return feld.farbe == FARBE_SCHWARZ ? (char)(feld.figur - 'A' + 'a') : feld.figur;
 }
 

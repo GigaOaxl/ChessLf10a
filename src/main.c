@@ -4,7 +4,17 @@
 #include "backend.h"
 #include "ui.h"
 
-#define DATEI_STANDARD "spielstand.txt"
+#define SPIELSTAND_DATEI "spielstand.txt"
+
+/* Menuepunkte (so steht es auch im Menue). */
+enum {
+    MENUE_BEENDEN = 0,
+    MENUE_ANZEIGEN,
+    MENUE_ZIEHEN,
+    MENUE_SPEICHERN,
+    MENUE_LADEN,
+    MENUE_NEUES_SPIEL
+};
 
 /*
  * Fragt Start- und Zielfeld ab und fuehrt den Zug aus. Jeder Fehler beendet die Eingabe sofort:
@@ -21,6 +31,7 @@ static void zug_eingeben(Feld spielfeld[8][8], char meldung[], int groesse)
 
     int code = startfeld_pruefen(spielfeld, startZeile, startSpalte);
     if (code != ZUG_OK) {
+        /* Es gibt noch kein Zielfeld: fuer diese Fehler zaehlt nur das Startfeld, daher Ziel = Start. */
         zugfehler_text(code, spielfeld, startZeile, startSpalte, startZeile, startSpalte, meldung, groesse);
         return;
     }
@@ -41,30 +52,35 @@ static void zug_eingeben(Feld spielfeld[8][8], char meldung[], int groesse)
 int main(void)
 {
     Feld spielfeld[8][8];
-    char meldung[100] = "Willkommen! Weiß beginnt.";
-    char eingabe[16];
+    char meldung[100] = "Willkommen! Weiß beginnt.";   /* Text unter dem Brett (Erfolg oder FEHLER) */
+    char auswahlText[16];
     int auswahl = -1;
 
     spielfeld_initialisieren(spielfeld);
 
-    while (auswahl != 0) {
+    while (auswahl != MENUE_BEENDEN) {
         seite_anzeigen(spielfeld, meldung);
         meldung[0] = '\0';
 
-        text_einlesen("Auswahl (Zahl): ", eingabe, sizeof eingabe);
-        auswahl = atoi(eingabe);
+        text_einlesen("Auswahl (Zahl): ", auswahlText, sizeof auswahlText);
+        auswahl = atoi(auswahlText);
 
-        if (auswahl == 1) {
-            /* nichts zu tun: die Seite wird ohnehin neu gezeichnet */
-        } else if (auswahl == 2) {
+        switch (auswahl) {
+        case MENUE_BEENDEN:
+            break;
+        case MENUE_ANZEIGEN:
+            break;                      /* nichts zu tun: die Seite wird ohnehin neu gezeichnet */
+        case MENUE_ZIEHEN:
             zug_eingeben(spielfeld, meldung, sizeof meldung);
-        } else if (auswahl == 3) {
-            if (spielstand_speichern(spielfeld, DATEI_STANDARD)) {
+            break;
+        case MENUE_SPEICHERN:
+            if (spielstand_speichern(spielfeld, SPIELSTAND_DATEI)) {
                 snprintf(meldung, sizeof meldung, "Spielstand gespeichert.");
             } else {
                 snprintf(meldung, sizeof meldung, "FEHLER: Spielstand konnte nicht gespeichert werden.");
             }
-        } else if (auswahl == 4) {
+            break;
+        case MENUE_LADEN: {
             char dateiname[64];
             text_einlesen("Dateiname: ", dateiname, sizeof dateiname);
             if (spielstand_laden(spielfeld, dateiname)) {
@@ -72,10 +88,13 @@ int main(void)
             } else {
                 snprintf(meldung, sizeof meldung, "FEHLER: Spielstand konnte nicht geladen werden.");
             }
-        } else if (auswahl == 5) {
+            break;
+        }
+        case MENUE_NEUES_SPIEL:
             spielfeld_initialisieren(spielfeld);
             snprintf(meldung, sizeof meldung, "Neues Spiel gestartet.");
-        } else if (auswahl != 0) {
+            break;
+        default:
             snprintf(meldung, sizeof meldung, "FEHLER: Ungültige Auswahl.");
         }
     }

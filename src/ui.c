@@ -5,6 +5,14 @@
 #include "backend.h"
 #include "ui.h"
 
+/* ANSI-Steuerzeichen: Figuren fett schreiben (Linux-Terminal, moderne Windows-Terminals). */
+#define FETT_AN  "\033[1m"
+#define FETT_AUS "\033[0m"
+
+/* Brettzeilen im Array: Zeile 0 ist die schwarze Grundreihe (oben, "8"), Zeile 7 die weisse (unten, "1"). */
+#define ZEILE_SCHWARZ_GRUNDREIHE 0
+#define ZEILE_WEISS_GRUNDREIHE   7
+
 static void bildschirm_leeren(void)
 {
     printf("\033[H\033[2J\033[3J"); /* Cursor oben, Bildschirm und Scrollback leeren */
@@ -19,13 +27,13 @@ static int ist_am_zug(Feld feld)
 /* Beschriftung rechts neben dem Brett; der Spieler am Zug bekommt einen Pfeil. */
 static const char *seitenbeschriftung(int zeile)
 {
-    if (zeile == 0) {
+    if (zeile == ZEILE_SCHWARZ_GRUNDREIHE) {
         return aktuellerSpieler == FARBE_SCHWARZ ? "  <== SCHWARZ (kleine Buchstaben) AM ZUG"
-                                       : "  Schwarz (kleine Buchstaben)";
+                                                 : "  Schwarz (kleine Buchstaben)";
     }
-    if (zeile == 7) {
+    if (zeile == ZEILE_WEISS_GRUNDREIHE) {
         return aktuellerSpieler == FARBE_WEISS ? "  <== WEISS (GROSSE Buchstaben) AM ZUG"
-                                       : "  Weiß (GROSSE Buchstaben)";
+                                               : "  Weiß (GROSSE Buchstaben)";
     }
     return "";
 }
@@ -35,11 +43,11 @@ static void spielfeld_ausgeben(Feld spielfeld[8][8])
     printf("    a b c d e f g h\n");
     printf("  +-----------------+\n");
     for (int zeile = 0; zeile < 8; zeile++) {
-        printf("%d |", 8 - zeile);
+        printf("%d |", 8 - zeile);                       /* Zeile 0 steht fuer Brettzeile 8 */
         for (int spalte = 0; spalte < 8; spalte++) {
             char figur = feld_zeichen(spielfeld[zeile][spalte]);
             if (ist_am_zug(spielfeld[zeile][spalte])) {
-                printf(" \033[1m%c\033[0m", figur);   /* fett: diese Figuren darf man ziehen */
+                printf(" " FETT_AN "%c" FETT_AUS, figur);   /* fett: diese Figuren darf man ziehen */
             } else {
                 printf(" %c", figur);
             }
@@ -102,23 +110,24 @@ void text_einlesen(const char *frage, char eingabe[], int groesse)
 
 int feld_einlesen(const char *frage, int *zeile, int *spalte)
 {
-    char feld[16];
-    text_einlesen(frage, feld, sizeof feld);
-    return feld_ermitteln(feld, zeile, spalte);
+    char eingabe[16];
+    text_einlesen(frage, eingabe, sizeof eingabe);
+    return feld_ermitteln(eingabe, zeile, spalte);
 }
 
 /* Erklaert, warum eine Figur nicht so ziehen darf (Meldung E7). Brett ist noch unveraendert. */
 static const char *regel_text(Feld spielfeld[8][8], int startZeile, int startSpalte, int zielZeile, int zielSpalte)
 {
-    int dz = abs(zielZeile - startZeile);
-    int ds = abs(zielSpalte - startSpalte);
+    int zeilenabstand = abs(zielZeile - startZeile);
+    int spaltenabstand = abs(zielSpalte - startSpalte);
 
+    /* Figurbuchstaben: T Turm, L Laeufer, S Springer, D Dame, K Koenig, sonst Bauer */
     switch (spielfeld[startZeile][startSpalte].figur) {
     case 'T':
-        return (dz > 0 && ds > 0) ? "Ein Turm kann sich nicht diagonal bewegen."
+        return (zeilenabstand > 0 && spaltenabstand > 0) ? "Ein Turm kann sich nicht diagonal bewegen."
                                   : "Der Weg des Turms ist durch eine Figur blockiert.";
     case 'L':
-        return (dz != ds) ? "Ein Läufer kann sich nur diagonal bewegen."
+        return (zeilenabstand != spaltenabstand) ? "Ein Läufer kann sich nur diagonal bewegen."
                           : "Der Weg des Läufers ist durch eine Figur blockiert.";
     case 'S': return "Ein Springer zieht nur in L-Form (2 Felder und 1 Feld seitlich).";
     case 'D': return "Eine Dame zieht nur gerade oder diagonal über freie Felder.";
