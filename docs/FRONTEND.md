@@ -36,14 +36,14 @@ dem Array gezeichnet, nichts wird angehaengt. Eine bewegte Figur steht deshalb n
 ```
   a b c d e f g h
   +-----------------+
-8 | t l s d k s l t |
+8 | t s l d k l s t |
 7 | b b b b b b b b |
 6 | . . . . . . . . |
 5 | . . . . . . . . |
 4 | . . . . B . . . |
 3 | . . . . . . . . |
 2 | B B B B . B B B |
-1 | T L S D K S L T |
+1 | T S L D K L S T |
   +-----------------+
 
 Zugnummer: 2
