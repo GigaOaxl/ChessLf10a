@@ -19,7 +19,7 @@ int main(void)
         seite_anzeigen(spielfeld, meldung);
         meldung[0] = '\0';
 
-        text_einlesen("Auswahl: ", eingabe, sizeof eingabe);
+        text_einlesen("Auswahl (Zahl): ", eingabe, sizeof eingabe);
         auswahl = atoi(eingabe);
 
         if (auswahl == 1) {
@@ -28,8 +28,8 @@ int main(void)
             char start[16], ziel[16];
             int startZeile, startSpalte, zielZeile, zielSpalte;
 
-            if (!feld_einlesen("Startfeld: ", start, &startZeile, &startSpalte) ||
-                !feld_einlesen("Zielfeld: ", ziel, &zielZeile, &zielSpalte)) {
+            if (!feld_einlesen("Figur auf Feld (z.B. e2): ", start, &startZeile, &startSpalte) ||
+                !feld_einlesen("Ziel-Feld (z.B. e4): ", ziel, &zielZeile, &zielSpalte)) {
                 snprintf(meldung, sizeof meldung, "FEHLER: Ungültiges Spielfeld.");
             } else {
                 int code = figur_bewegen(spielfeld, startZeile, startSpalte, zielZeile, zielSpalte);

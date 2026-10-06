@@ -6,7 +6,7 @@
 
 void bildschirm_leeren(void)
 {
-    printf("\033[H\033[J");
+    printf("\033[H\033[2J\033[3J"); /* Cursor oben, Bildschirm und Scrollback leeren */
 }
 
 void spielfeld_ausgeben(char spielfeld[8][8])
@@ -23,12 +23,15 @@ void spielfeld_ausgeben(char spielfeld[8][8])
     printf("  +-----------------+\n");
 }
 
-#define PROTOKOLL_ANZEIGE 5 /* so viele letzte Zuege werden gezeigt */
+#define PROTOKOLL_ANZEIGE 3 /* so viele letzte Zuege werden gezeigt */
 
 void status_ausgeben(void)
 {
-    printf("\nZugnummer: %d\n", zugnummer);
-    printf("Spieler: %s\n", aktuellerSpieler == 'W' ? "Weiß" : "Schwarz");
+    if (aktuellerSpieler == 'W') {
+        printf("\nZug %d: Weiß ist am Zug (GROSSE Buchstaben, unten).\n", zugnummer);
+    } else {
+        printf("\nZug %d: Schwarz ist am Zug (kleine Buchstaben, oben).\n", zugnummer);
+    }
 }
 
 void protokoll_ausgeben(void)
@@ -37,7 +40,7 @@ void protokoll_ausgeben(void)
     if (erster < 0) {
         erster = 0;
     }
-    printf("\nZugprotokoll:\n");
+    printf("Letzte Züge:\n");
     for (int i = erster; i < zugprotokollAnzahl; i++) {
         printf("%s\n", zugprotokoll[i]);
     }
@@ -45,15 +48,10 @@ void protokoll_ausgeben(void)
 
 void menue_anzeigen(void)
 {
-    printf("\n========================\n");
-    printf("C-SCHACH\n");
-    printf("========================\n\n");
-    printf("1 - Spielfeld anzeigen\n");
-    printf("2 - Figur bewegen\n");
-    printf("3 - Spielstand speichern\n");
-    printf("4 - Spielstand laden\n");
-    printf("5 - Neues Spiel\n");
-    printf("0 - Beenden\n\n");
+    printf("\n=== C-SCHACH ===\n");
+    printf("1 - Spielfeld anzeigen    4 - Spielstand laden\n");
+    printf("2 - Figur bewegen         5 - Neues Spiel\n");
+    printf("3 - Spielstand speichern  0 - Beenden\n\n");
 }
 
 void seite_anzeigen(char spielfeld[8][8], const char *meldung)
@@ -62,7 +60,7 @@ void seite_anzeigen(char spielfeld[8][8], const char *meldung)
     spielfeld_ausgeben(spielfeld);
     status_ausgeben();
     protokoll_ausgeben();
-    printf("\n%s\n", meldung);
+    printf("%s\n", meldung);
     menue_anzeigen();
 }
 
