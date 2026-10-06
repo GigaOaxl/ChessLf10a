@@ -17,6 +17,8 @@ Der Vertrag steht in `src/backend.h`. Das Frontend ruft nur diese Funktionen auf
 | `ZUG_FALSCHE_FARBE` | FEHLER: Diese Figur gehoert nicht zu <Spieler>. |
 | `ZUG_UNGUELTIG` | FEHLER: Ungueltiger Zug. |
 
-## Fuer Experten-Stufe (spaeter, M4)
-Der Kollege stellt zusaetzlich bereit: `aktuellerSpieler` ('W'/'S'), `zugnummer`
-und das Zugprotokoll. Das Frontend liest sie nur zur Anzeige.
+## Experten-Daten (extern in backend.h)
+Der Kollege definiert sie, das Frontend liest sie nur zur Anzeige:
+`aktuellerSpieler` ('W'/'S'), `zugnummer` (beginnt bei 1), `zugprotokoll[][16]`
+(z.B. "1. e2 -> e4") und `zugprotokollAnzahl`.
+`spielfeld_initialisieren` setzt diese Werte auch zurueck (Neues Spiel).
