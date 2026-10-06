@@ -71,7 +71,7 @@ Legende: ✅ fertig und getestet | ⚠️ teilweise | ❌ offen
 | Abgabe: Dokumentation der Funktionen | ✅ `docs/ABGABE.md` (Backend und Frontend) |
 | Abgabe: Beschreibung der implementierten Schachregeln | ✅ Abschnitt "Schachregeln im Spiel" |
 | Abgabe: gespeicherter Spielstand als Beispiel | ✅ `docs/beispiel_spielstand.txt` |
-| Reflexionsaufgabe (7 Fragen) | ⚠️ Entwurf in `docs/REFLEXION.md`, muss noch in eigenen Worten ueberarbeitet werden |
+| Reflexionsaufgabe (7 Fragen) | ✅ `docs/REFLEXION.md` |
 
 ## Schachregeln im Spiel
 - Weiss (Grossbuchstaben) beginnt, danach wechseln die Spieler.

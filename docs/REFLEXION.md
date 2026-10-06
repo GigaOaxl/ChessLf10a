@@ -1,56 +1,79 @@
 # Reflexionsaufgabe
 
-> ENTWURF. Die Antworten beziehen sich auf unseren Code, muessen aber vor der Abgabe
-> noch in eigenen Worten ueberarbeitet werden.
+## 1. Warum eignet sich ein zweidimensionales Array für ein Schachbrett?
+Ein Schachbrett hat Zeilen und Spalten. Ein zweidimensionales Array hat auch Zeilen und
+Spalten. Das passt direkt zusammen: Das Feld e2 ist `spielfeld[6][4]`.
 
-## 1. Warum eignet sich ein zweidimensionales Array fuer ein Schachbrett?
-Ein Schachbrett hat Zeilen und Spalten, genau wie ein 2D-Array. Das Feld `e2` entspricht
-direkt `spielfeld[6][4]`. Dadurch lassen sich Zuege mit Zahlen rechnen: Ein Turm bleibt in
-der gleichen Zeile oder Spalte, ein Laeufer aendert Zeile und Spalte um gleich viel. In
-`backend.c` pruefen wir das mit `abs(zz - sz) != abs(zs - ss)`. Mit Schleifen koennen wir
-das ganze Brett ausgeben, speichern und laden (`spielfeld_ausgeben`, `spielstand_speichern`).
+Dadurch kann man mit Zahlen rechnen. Ein Turm bleibt in derselben Zeile oder Spalte. Ein
+Läufer geht in Zeile und Spalte gleich viele Schritte (`abs(zz - sz) == abs(zs - ss)` in
+`laeufer_darf`). Außerdem können wir das Brett mit zwei Schleifen ausgeben, speichern und
+laden (`spielfeld_ausgeben`, `spielstand_speichern`, `spielstand_laden`).
 
 ## 2. Welche Vorteile ergeben sich durch die Verwendung von Funktionen?
-- Jede Funktion hat eine Aufgabe, z.B. `feld_ermitteln` wandelt nur Text in Indizes um.
-- Code wird nicht doppelt geschrieben: `weg_ist_frei` nutzen Turm, Laeufer und Dame.
-- Man kann Teile einzeln testen. Unsere 45 Tests rufen die Spiellogik ohne Oberflaeche auf.
-- Zwei Personen koennen parallel arbeiten: Frontend (`ui.c`) und Backend (`backend.c`)
-  sind nur ueber `backend.h` verbunden.
+- Jede Funktion macht nur eine Sache. `feld_ermitteln` wandelt nur "e2" in Zahlen um.
+  `figur_bewegen` prüft und führt den Zug aus.
+- Man schreibt Code nur einmal. `weg_ist_frei` wird von Turm, Läufer und Dame benutzt.
+  `startfeld_pruefen` wird vom Menü und von `figur_bewegen` benutzt.
+- Man kann Teile einzeln testen. Unsere Tests (`make test`) rufen nur die Spiellogik auf,
+  ohne Menü.
+- Wir konnten zu zweit arbeiten. Einer hat Anzeige und Menü gemacht (`ui.c`, `main.c`),
+  der andere die Regeln (`backend.c`). Beide Teile sind nur über `backend.h` verbunden.
+- Der Code ist leichter zu lesen, weil die Namen sagen, was passiert.
 
-## 3. Welche Probleme entstehen bei der Umwandlung von `a1` in Array-Indizes?
-- Die Spalte ist ein Buchstabe: `'a' - 'a' = 0` ... `'h' - 'a' = 7`.
-- Die Zeile ist verdreht: Auf dem Brett steht 8 oben, im Array ist Zeile 0 oben. Deshalb
-  gilt `zeile = 8 - (ziffer)`. Also ist `a1` = `[7][0]` und nicht `[0][0]`.
-- Das Array zaehlt ab 0, das Brett ab 1. Das fuehrt leicht zu Off-by-one-Fehlern.
-- Die Eingabe kann falsch sein (`z9`, `abc`, leer). Erst pruefen, dann umrechnen.
+## 3. Welche Probleme entstehen bei der Umwandlung von a1 in Array-Indizes?
+- Der Buchstabe wird zur Spalte: a = 0, b = 1, ... h = 7. Das geht mit `feld[0] - 'a'`.
+- Die Zahl wird zur Zeile, aber **andersherum**. Auf dem Brett ist die 8 oben. Im Array
+  ist Zeile 0 oben. Darum rechnen wir `zeile = 8 - (feld[1] - '0')`. Also ist a1 =
+  `[7][0]` und a8 = `[0][0]`.
+- Das Array fängt bei 0 an, das Brett bei 1. Da passieren schnell Fehler um eins.
+- Die Eingabe kann falsch sein, zum Beispiel `z9`, `a9`, `x` oder `abc`. Deshalb prüft
+  `feld_ermitteln` zuerst, ob es genau zwei Zeichen sind und ob sie zwischen a-h und 1-8
+  liegen. Erst dann wird gerechnet.
 
-## 4. Warum sollte ein Programm Benutzereingaben ueberpruefen?
-Benutzer tippen Fehler oder absichtlich Unsinn. Ohne Pruefung wuerde `z9` ausserhalb des
-Arrays lesen oder schreiben, das Programm koennte abstuerzen oder falsche Daten
-speichern. Deshalb prueft `feld_ermitteln` jede Eingabe, und `figur_bewegen` prueft den
-Zug, bevor das Brett veraendert wird. Bei einem Fehler bleibt der Spielstand unveraendert
-und es kommt eine verstaendliche Meldung.
+## 4. Warum sollte ein Programm Benutzereingaben überprüfen?
+Menschen tippen Fehler. Ohne Prüfung würde `z9` einen Platz außerhalb des Arrays treffen.
+Dann kann das Programm abstürzen oder falsche Daten ändern.
 
-## 5. Welche Informationen muessen mindestens gespeichert werden, damit ein Spielstand vollstaendig wiederhergestellt werden kann?
-- das Spielfeld (alle 64 Felder mit Figur und Farbe)
-- wer am Zug ist (`aktuellerSpieler`)
-- die Zugnummer
+Bei uns passiert das so:
+- `feld_ermitteln` prüft, ob das Feld überhaupt existiert.
+- `startfeld_pruefen` prüft, ob dort eine eigene Figur steht.
+- `figur_bewegen` prüft, ob der Zug nach den Regeln erlaubt ist.
+- `spielstand_laden` prüft die ganze Datei, bevor etwas überschrieben wird.
 
-Wir speichern zusaetzlich das Zugprotokoll, damit auch der Verlauf zurueckkommt. Nicht
-gespeichert sind Informationen, die fuer Rochade und en passant noetig waeren (ob Koenig
-oder Turm sich schon bewegt haben). Diese Regeln haben wir nicht eingebaut.
+Bei einem Fehler bleibt das Spiel unverändert und der Benutzer bekommt eine klare Meldung
+(`FEHLER: ...`).
 
-## 6. Welche Probleme wuerden entstehen, wenn statt eines Arrays nur 64 einzelne Variablen verwendet wuerden?
-- Keine Schleifen: Ausgabe, Speichern und Laden muessten 64 Mal einzeln geschrieben werden.
-- Man kann nicht mit Zahlen rechnen. Ein Zug `e2` -> `e4` waere eine riesige Fallunterscheidung.
-- Pruefen, ob der Weg frei ist, ginge nicht mit einer Schleife.
-- Der Code waere sehr lang und fehleranfaellig, schon ein Tippfehler im Namen faellt kaum auf.
+## 5. Welche Informationen müssen mindestens gespeichert werden, damit ein Spielstand vollständig wiederhergestellt werden kann?
+Mindestens drei Dinge:
+1. das Spielfeld (alle 64 Felder mit Figur und Farbe),
+2. wer am Zug ist (`aktuellerSpieler`),
+3. die Zugnummer.
 
-## 7. Wie koennte das Programm erweitert werden, damit zwei Spieler ueber ein Netzwerk gegeneinander spielen koennen?
-Ein Programm wird zum Server, das Spielfeld und die Regeln liegen nur dort. Zwei Clients
-verbinden sich ueber Sockets (TCP). Ein Client schickt seinen Zug als Text, z.B.
-`e2 e4`. Der Server prueft ihn mit `figur_bewegen`, aendert das Brett und schickt den
-neuen Stand an beide Clients. Dank der Trennung in Frontend und Backend bleibt die
-Spiellogik gleich, nur die Ein- und Ausgabe wird durch Netzwerkaufrufe ersetzt. Zusaetzlich
-braucht es: Pruefung, dass nur der Spieler am Zug sendet, und Behandlung von
-Verbindungsabbruch (Spielstand speichern).
+Ohne den Spieler am Zug wüsste man nach dem Laden nicht, wer dran ist. Wir speichern
+außerdem das Zugprotokoll, damit auch der Verlauf zurückkommt.
+
+Nicht gespeichert wird, ob König oder Turm sich schon bewegt haben. Das bräuchte man für
+Rochade. Diese Regel haben wir nicht eingebaut.
+
+## 6. Welche Probleme würden entstehen, wenn statt eines Arrays nur 64 einzelne Variablen verwendet würden?
+- Man kann keine Schleifen benutzen. Ausgabe, Speichern und Laden müssten 64 Mal einzeln
+  geschrieben werden.
+- Man kann nicht mit Zahlen rechnen. Für einen Zug von e2 nach e4 müsste man jedes Feld
+  einzeln abfragen (64 mal `if`).
+- "Ist der Weg frei?" geht nicht mit einer Schleife (`weg_ist_frei`).
+- Der Code wäre sehr lang. Ein kleiner Tippfehler bei einem Variablennamen fällt kaum auf.
+
+## 7. Wie könnte das Programm erweitert werden, damit zwei Spieler über ein Netzwerk gegeneinander spielen können?
+Ein Programm ist der Server. Nur dort liegen das Brett und die Regeln. Die zwei Spieler
+sind Clients und verbinden sich über das Netzwerk (Sockets, TCP).
+
+Ablauf:
+1. Ein Spieler schickt seinen Zug als Text, zum Beispiel `e2 e4`.
+2. Der Server prüft ihn mit den vorhandenen Funktionen (`feld_ermitteln`, `figur_bewegen`).
+3. Ist der Zug gültig, schickt der Server das neue Brett an beide Spieler.
+4. Ist er ungültig, bekommt nur der Absender eine Fehlermeldung.
+
+Die Spiellogik bleibt gleich, weil sie schon von der Anzeige getrennt ist. Neu wären nur
+die Ein- und Ausgabe über das Netzwerk. Man müsste außerdem prüfen, dass nur der Spieler
+am Zug etwas senden darf, und was passiert, wenn eine Verbindung abbricht (zum Beispiel
+den Spielstand speichern).
