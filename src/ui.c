@@ -11,6 +11,29 @@ void bildschirm_leeren(void)
     printf("\033[H\033[2J\033[3J"); /* Cursor oben, Bildschirm und Scrollback leeren */
 }
 
+/* 1, wenn die Figur dem Spieler gehoert, der gerade am Zug ist (Gross = Weiss). */
+static int ist_am_zug(char figur)
+{
+    if (figur == '.') {
+        return 0;
+    }
+    return isupper((unsigned char)figur) == (aktuellerSpieler == 'W');
+}
+
+/* Beschriftung rechts neben dem Brett; der Spieler am Zug bekommt einen Pfeil. */
+static const char *seitenbeschriftung(int zeile)
+{
+    if (zeile == 0) {
+        return aktuellerSpieler == 'S' ? "  <== SCHWARZ (kleine Buchstaben) AM ZUG"
+                                       : "  Schwarz (kleine Buchstaben)";
+    }
+    if (zeile == 7) {
+        return aktuellerSpieler == 'W' ? "  <== WEISS (GROSSE Buchstaben) AM ZUG"
+                                       : "  Weiß (GROSSE Buchstaben)";
+    }
+    return "";
+}
+
 void spielfeld_ausgeben(char spielfeld[8][8])
 {
     printf("    a b c d e f g h\n");
@@ -18,9 +41,14 @@ void spielfeld_ausgeben(char spielfeld[8][8])
     for (int zeile = 0; zeile < 8; zeile++) {
         printf("%d |", 8 - zeile);
         for (int spalte = 0; spalte < 8; spalte++) {
-            printf(" %c", spielfeld[zeile][spalte]);
+            char figur = spielfeld[zeile][spalte];
+            if (ist_am_zug(figur)) {
+                printf(" \033[1m%c\033[0m", figur);   /* fett: diese Figuren darf man ziehen */
+            } else {
+                printf(" %c", figur);
+            }
         }
-        printf(" |\n");
+        printf(" |%s\n", seitenbeschriftung(zeile));
     }
     printf("  +-----------------+\n");
 }
@@ -30,9 +58,9 @@ void spielfeld_ausgeben(char spielfeld[8][8])
 void status_ausgeben(void)
 {
     if (aktuellerSpieler == 'W') {
-        printf("\nZug %d: Weiß ist am Zug (GROSSE Buchstaben, unten).\n", zugnummer);
+        printf("\n>>> Zug %d: WEISS ist am Zug. Du bewegst die GROSSEN Buchstaben (unten). <<<\n", zugnummer);
     } else {
-        printf("\nZug %d: Schwarz ist am Zug (kleine Buchstaben, oben).\n", zugnummer);
+        printf("\n>>> Zug %d: SCHWARZ ist am Zug. Du bewegst die kleinen Buchstaben (oben). <<<\n", zugnummer);
     }
 }
 
