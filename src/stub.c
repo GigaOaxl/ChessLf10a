@@ -14,8 +14,8 @@ int zugprotokollAnzahl = 0;
 void spielfeld_initialisieren(char spielfeld[8][8])
 {
     const char *start[8] = {
-        "tlsdkslt", "bbbbbbbb", "........", "........",
-        "........", "........", "BBBBBBBB", "TLSDKSLT"
+        "tsldklst", "bbbbbbbb", "........", "........",
+        "........", "........", "BBBBBBBB", "TSLDKLST"
     };
     for (int zeile = 0; zeile < 8; zeile++) {
         memcpy(spielfeld[zeile], start[zeile], 8);
