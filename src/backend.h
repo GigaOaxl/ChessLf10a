@@ -10,6 +10,28 @@
 #ifndef BACKEND_H
 #define BACKEND_H
 
+/*
+ * Ein Feld des Bretts. Figur und Farbe sind getrennt gespeichert.
+ *   figur: 'K' Koenig, 'D' Dame, 'T' Turm, 'L' Laeufer, 'S' Springer, 'B' Bauer, '.' leer
+ *   farbe: 'W' Weiss, 'S' Schwarz, '-' kein Spieler (leeres Feld)
+ */
+typedef struct {
+    char figur;
+    char farbe;
+} Feld;
+
+/*
+ * Zeichen fuer Anzeige und Spielstand-Datei: Weiss = GROSSBUCHSTABE, Schwarz = kleinbuchstabe,
+ * leer = '.'. Beispiel: {'B','W'} -> 'B', {'B','S'} -> 'b'.
+ */
+static inline char feld_zeichen(Feld feld)
+{
+    if (feld.figur == '.') {
+        return '.';
+    }
+    return feld.farbe == 'S' ? (char)(feld.figur - 'A' + 'a') : feld.figur;
+}
+
 /* Rueckgabecodes von figur_bewegen: 0 = Zug ausgefuehrt, alles andere = Fehler. */
 enum {
     ZUG_OK = 0,
@@ -26,18 +48,18 @@ extern char zugprotokoll[PROTOKOLL_MAX][16]; /* je Zeile z.B. "1. e2 -> e4" */
 extern int  zugprotokollAnzahl;             /* Anzahl gespeicherter Zuege */
 
 /* Stellt die Ausgangsstellung her (setzt auch Spieler, Zugnummer, Protokoll zurueck). */
-void spielfeld_initialisieren(char spielfeld[8][8]);
+void spielfeld_initialisieren(Feld spielfeld[8][8]);
 
 /* Wandelt z.B. "e2" in Zeile/Spalte um. Rueckgabe: 1 = gueltig, 0 = ungueltig. */
 int feld_ermitteln(char feld[], int *zeile, int *spalte);
 
 /* Verschiebt eine Figur. Rueckgabe: ZUG_OK oder ein Fehlercode (siehe oben). */
-int figur_bewegen(char spielfeld[8][8],
+int figur_bewegen(Feld spielfeld[8][8],
                   int startZeile, int startSpalte,
                   int zielZeile, int zielSpalte);
 
 /* Datei-Funktionen. Rueckgabe: 1 = Erfolg, 0 = Fehler. */
-int spielstand_speichern(char spielfeld[8][8], const char *dateiname);
-int spielstand_laden(char spielfeld[8][8], const char *dateiname);
+int spielstand_speichern(Feld spielfeld[8][8], const char *dateiname);
+int spielstand_laden(Feld spielfeld[8][8], const char *dateiname);
 
 #endif

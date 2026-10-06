@@ -2,10 +2,9 @@
 
 ## Build und Start
 ```
-make        # baut ./schach mit der Attrappe src/stub.c
+make        # baut ./schach (Frontend + Backend)
 ./schach
 ```
-Mit dem echten Backend: in `Makefile` `src/stub.c` durch dessen Datei ersetzen.
 
 ## Dateien
 | Datei | Inhalt |
@@ -13,7 +12,7 @@ Mit dem echten Backend: in `Makefile` `src/stub.c` durch dessen Datei ersetzen.
 | `src/ui.h`, `src/ui.c` | Anzeige und Eingabe |
 | `src/main.c` | Menueschleife |
 | `src/backend.h` | Vertrag mit der Spiellogik (Kollege) |
-| `src/stub.c` | Attrappe der Spiellogik, nur zum Testen |
+| `src/backend.c` | Spiellogik |
 
 ## Funktionen (ui.c)
 | Funktion | Aufgabe |

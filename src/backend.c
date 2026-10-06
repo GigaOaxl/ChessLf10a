@@ -9,13 +9,13 @@
  *   5. Speichern und Laden
  *
  * Koordinaten: spielfeld[0][0] = a8, spielfeld[7][7] = h1.
- * Weisse Figuren sind Grossbuchstaben und ziehen nach OBEN (Zeile wird kleiner).
- * Schwarze Figuren sind Kleinbuchstaben und ziehen nach UNTEN (Zeile wird groesser).
+ * Jedes Feld ist ein Feld-struct (Figur + Farbe getrennt, siehe backend.h).
+ * Weisse Figuren ziehen nach OBEN (Zeile wird kleiner), schwarze nach UNTEN.
+ * In der Spielstand-Datei steht Weiss als Grossbuchstabe, Schwarz als Kleinbuchstabe.
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include "backend.h"
 
 /* ---------- 1. Spieldaten ---------- */
@@ -27,32 +27,39 @@ int zugprotokollAnzahl = 0;
 
 /* ---------- 2. Hilfsfunktionen fuer Figuren ---------- */
 
-/* 1, wenn das Zeichen eine weisse Figur ist (Grossbuchstabe). */
-static int ist_weiss(char figur)
+/* 1, wenn auf dem Feld keine Figur steht. */
+static int ist_leer(Feld feld)
 {
-    return figur >= 'A' && figur <= 'Z';
+    return feld.figur == '.';
 }
 
-/* 1, wenn das Zeichen eine schwarze Figur ist (Kleinbuchstabe). */
-static int ist_schwarz(char figur)
+/* 1, wenn die Figur auf dem Feld dem Spieler 'W' oder 'S' gehoert. */
+static int gehoert_spieler(Feld feld, char spieler)
 {
-    return figur >= 'a' && figur <= 'z';
+    return !ist_leer(feld) && feld.farbe == spieler;
 }
 
-/* 1, wenn die Figur dem Spieler 'W' oder 'S' gehoert. */
-static int gehoert_spieler(char figur, char spieler)
+/* 1, wenn beide Felder Figuren haben und die Farben verschieden sind. */
+static int sind_gegner(Feld feldA, Feld feldB)
 {
-    if (spieler == 'W') {
-        return ist_weiss(figur);
+    return !ist_leer(feldA) && !ist_leer(feldB) && feldA.farbe != feldB.farbe;
+}
+
+/* Baut ein Feld aus einem Zeichen der Spielstand-Datei (Gross = Weiss, klein = Schwarz). */
+static Feld feld_aus_zeichen(char zeichen)
+{
+    Feld feld;
+    if (zeichen == '.') {
+        feld.figur = '.';
+        feld.farbe = '-';
+    } else if (zeichen >= 'a' && zeichen <= 'z') {
+        feld.figur = (char)(zeichen - 'a' + 'A');
+        feld.farbe = 'S';
+    } else {
+        feld.figur = zeichen;
+        feld.farbe = 'W';
     }
-    return ist_schwarz(figur);
-}
-
-/* 1, wenn beide Figuren verschiedenen Spielern gehoeren (und keine leer ist). */
-static int sind_gegner(char figurA, char figurB)
-{
-    return (ist_weiss(figurA) && ist_schwarz(figurB)) ||
-           (ist_schwarz(figurA) && ist_weiss(figurB));
+    return feld;
 }
 
 /* Vorzeichen einer Zahl: -1, 0 oder +1. Gibt die Laufrichtung eines Zuges an. */
@@ -74,7 +81,7 @@ static int vorzeichen(int zahl)
  * Gilt nur fuer gerade oder diagonale Zuege (Turm, Laeufer, Dame).
  * Wir gehen Schritt fuer Schritt vom Start zum Ziel und pruefen jedes Feld.
  */
-static int weg_ist_frei(char spielfeld[8][8],
+static int weg_ist_frei(Feld spielfeld[8][8],
                         int startZeile, int startSpalte,
                         int zielZeile, int zielSpalte)
 {
@@ -84,7 +91,7 @@ static int weg_ist_frei(char spielfeld[8][8],
     int spalte = startSpalte + schrittSpalte;
 
     while (zeile != zielZeile || spalte != zielSpalte) {
-        if (spielfeld[zeile][spalte] != '.') {
+        if (!ist_leer(spielfeld[zeile][spalte])) {
             return 0;
         }
         zeile += schrittZeile;
@@ -94,7 +101,7 @@ static int weg_ist_frei(char spielfeld[8][8],
 }
 
 /* Turm: nur gerade (gleiche Zeile ODER gleiche Spalte), Weg muss frei sein. */
-static int turm_darf(char spielfeld[8][8], int sz, int ss, int zz, int zs)
+static int turm_darf(Feld spielfeld[8][8], int sz, int ss, int zz, int zs)
 {
     if (sz != zz && ss != zs) {
         return 0;
@@ -103,7 +110,7 @@ static int turm_darf(char spielfeld[8][8], int sz, int ss, int zz, int zs)
 }
 
 /* Laeufer: nur diagonal (gleich viele Zeilen wie Spalten), Weg muss frei sein. */
-static int laeufer_darf(char spielfeld[8][8], int sz, int ss, int zz, int zs)
+static int laeufer_darf(Feld spielfeld[8][8], int sz, int ss, int zz, int zs)
 {
     if (abs(zz - sz) != abs(zs - ss)) {
         return 0;
@@ -121,7 +128,7 @@ static int springer_darf(int sz, int ss, int zz, int zs)
 }
 
 /* Dame: Turm ODER Laeufer. */
-static int dame_darf(char spielfeld[8][8], int sz, int ss, int zz, int zs)
+static int dame_darf(Feld spielfeld[8][8], int sz, int ss, int zz, int zs)
 {
     return turm_darf(spielfeld, sz, ss, zz, zs) ||
            laeufer_darf(spielfeld, sz, ss, zz, zs);
@@ -140,23 +147,23 @@ static int koenig_darf(int sz, int ss, int zz, int zs)
  *  - 1 Feld diagonal NUR zum Schlagen einer gegnerischen Figur
  * Nicht enthalten: en passant und Umwandlung.
  */
-static int bauer_darf(char spielfeld[8][8], int sz, int ss, int zz, int zs)
+static int bauer_darf(Feld spielfeld[8][8], int sz, int ss, int zz, int zs)
 {
-    char bauer = spielfeld[sz][ss];
-    int richtung = ist_weiss(bauer) ? -1 : 1;     /* Weiss: Zeile wird kleiner */
-    int grundreihe = ist_weiss(bauer) ? 6 : 1;    /* Zeile, in der die Bauern starten */
+    Feld bauer = spielfeld[sz][ss];
+    int richtung = bauer.farbe == 'W' ? -1 : 1;     /* Weiss: Zeile wird kleiner */
+    int grundreihe = bauer.farbe == 'W' ? 6 : 1;    /* Zeile, in der die Bauern starten */
     int schritt = zz - sz;
     int seitwaerts = abs(zs - ss);
 
     if (seitwaerts == 0) {
-        if (spielfeld[zz][zs] != '.') {
+        if (!ist_leer(spielfeld[zz][zs])) {
             return 0;                             /* geradeaus nie auf eine Figur */
         }
         if (schritt == richtung) {
             return 1;
         }
         return sz == grundreihe && schritt == 2 * richtung &&
-               spielfeld[sz + richtung][ss] == '.';
+               ist_leer(spielfeld[sz + richtung][ss]);
     }
     if (seitwaerts == 1 && schritt == richtung) {
         return sind_gegner(bauer, spielfeld[zz][zs]);
@@ -165,22 +172,22 @@ static int bauer_darf(char spielfeld[8][8], int sz, int ss, int zz, int zs)
 }
 
 /* Verteilt auf die Regel der jeweiligen Figur. 1 = Bewegung erlaubt. */
-static int bewegung_erlaubt(char spielfeld[8][8], int sz, int ss, int zz, int zs)
+static int bewegung_erlaubt(Feld spielfeld[8][8], int sz, int ss, int zz, int zs)
 {
-    switch (tolower((unsigned char)spielfeld[sz][ss])) {
-    case 't': return turm_darf(spielfeld, sz, ss, zz, zs);
-    case 'l': return laeufer_darf(spielfeld, sz, ss, zz, zs);
-    case 's': return springer_darf(sz, ss, zz, zs);
-    case 'd': return dame_darf(spielfeld, sz, ss, zz, zs);
-    case 'k': return koenig_darf(sz, ss, zz, zs);
-    case 'b': return bauer_darf(spielfeld, sz, ss, zz, zs);
+    switch (spielfeld[sz][ss].figur) {
+    case 'T': return turm_darf(spielfeld, sz, ss, zz, zs);
+    case 'L': return laeufer_darf(spielfeld, sz, ss, zz, zs);
+    case 'S': return springer_darf(sz, ss, zz, zs);
+    case 'D': return dame_darf(spielfeld, sz, ss, zz, zs);
+    case 'K': return koenig_darf(sz, ss, zz, zs);
+    case 'B': return bauer_darf(spielfeld, sz, ss, zz, zs);
     default:  return 0;
     }
 }
 
 /* ---------- 4. Oeffentliche Funktionen ---------- */
 
-void spielfeld_initialisieren(char spielfeld[8][8])
+void spielfeld_initialisieren(Feld spielfeld[8][8])
 {
     const char *anfang[8] = {
         "tsldklst",     /* Zeile 8: schwarze Grundreihe */
@@ -194,7 +201,9 @@ void spielfeld_initialisieren(char spielfeld[8][8])
     };
 
     for (int zeile = 0; zeile < 8; zeile++) {
-        memcpy(spielfeld[zeile], anfang[zeile], 8);
+        for (int spalte = 0; spalte < 8; spalte++) {
+            spielfeld[zeile][spalte] = feld_aus_zeichen(anfang[zeile][spalte]);
+        }
     }
     aktuellerSpieler = 'W';
     zugnummer = 1;
@@ -226,15 +235,15 @@ static void zug_protokollieren(int sz, int ss, int zz, int zs)
     zugprotokollAnzahl++;
 }
 
-int figur_bewegen(char spielfeld[8][8],
+int figur_bewegen(Feld spielfeld[8][8],
                   int startZeile, int startSpalte,
                   int zielZeile, int zielSpalte)
 {
-    char figur = spielfeld[startZeile][startSpalte];
-    char ziel = spielfeld[zielZeile][zielSpalte];
+    Feld figur = spielfeld[startZeile][startSpalte];
+    Feld ziel = spielfeld[zielZeile][zielSpalte];
 
     /* Pruefungen in dieser Reihenfolge; die erste, die fehlschlaegt, bricht ab. */
-    if (figur == '.') {
+    if (ist_leer(figur)) {
         return ZUG_STARTFELD_LEER;
     }
     if (!gehoert_spieler(figur, aktuellerSpieler)) {
@@ -253,7 +262,7 @@ int figur_bewegen(char spielfeld[8][8],
     /* Zug ist gueltig: protokollieren, ausfuehren (ueberschreibt ggf. Gegner = schlagen). */
     zug_protokollieren(startZeile, startSpalte, zielZeile, zielSpalte);
     spielfeld[zielZeile][zielSpalte] = figur;
-    spielfeld[startZeile][startSpalte] = '.';
+    spielfeld[startZeile][startSpalte] = feld_aus_zeichen('.');
 
     zugnummer++;
     aktuellerSpieler = (aktuellerSpieler == 'W') ? 'S' : 'W';
@@ -270,7 +279,7 @@ int figur_bewegen(char spielfeld[8][8],
  *   danach:       je eine Zeile pro Zug, z.B. "1. e2 -> e4"
  */
 
-int spielstand_speichern(char spielfeld[8][8], const char *dateiname)
+int spielstand_speichern(Feld spielfeld[8][8], const char *dateiname)
 {
     FILE *datei = fopen(dateiname, "w");
     if (datei == NULL) {
@@ -279,7 +288,10 @@ int spielstand_speichern(char spielfeld[8][8], const char *dateiname)
 
     fprintf(datei, "%d\n%c\n", zugnummer, aktuellerSpieler);
     for (int zeile = 0; zeile < 8; zeile++) {
-        fprintf(datei, "%.8s\n", spielfeld[zeile]);
+        for (int spalte = 0; spalte < 8; spalte++) {
+            fputc(feld_zeichen(spielfeld[zeile][spalte]), datei);
+        }
+        fputc('\n', datei);
     }
     fprintf(datei, "%d\n", zugprotokollAnzahl);
     for (int i = 0; i < zugprotokollAnzahl; i++) {
@@ -313,9 +325,9 @@ static int ist_brettzeichen(char zeichen)
  * Wir lesen zuerst in lokale Zwischenspeicher und uebernehmen erst am Ende.
  * So bleibt der laufende Spielstand unveraendert, falls die Datei kaputt ist.
  */
-int spielstand_laden(char spielfeld[8][8], const char *dateiname)
+int spielstand_laden(Feld spielfeld[8][8], const char *dateiname)
 {
-    char neuesFeld[8][8];
+    Feld neuesFeld[8][8];
     char neuesProtokoll[PROTOKOLL_MAX][16];
     char zeile[64];
     int neueZugnummer, neueAnzahl;
@@ -350,7 +362,7 @@ int spielstand_laden(char spielfeld[8][8], const char *dateiname)
                 fclose(datei);
                 return 0;
             }
-            neuesFeld[z][s] = zeile[s];
+            neuesFeld[z][s] = feld_aus_zeichen(zeile[s]);
         }
     }
 
