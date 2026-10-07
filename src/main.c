@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include "backend.h"
 #include "ui.h"
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #define SPIELSTAND_DATEI "spielstand.txt"
 
@@ -51,6 +54,13 @@ static void zug_eingeben(Feld spielfeld[8][8], char meldung[], int groesse)
 
 int main(void)
 {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);   /* Umlaute und Figuren-Symbole */
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD modus;
+    if (GetConsoleMode(h, &modus))
+        SetConsoleMode(h, modus | 0x0004);   /* ANSI-Escape-Codes einschalten */
+#endif
     Feld spielfeld[8][8];
     char meldung[100] = "Willkommen! Weiß beginnt.";   /* Text unter dem Brett (Erfolg oder FEHLER) */
     char auswahlText[16];
